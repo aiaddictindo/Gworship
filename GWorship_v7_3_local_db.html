@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>GWorship V7.3 - Local DB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap');
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #000; overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            touch-action: none; 
+            user-select: none;
+        }
+
+        /* ================= LAYER BACKGROUND ================= */
+        #bg-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            z-index: 1; transition: all 0.5s ease;
+        }
+
+        .anim-container { position: absolute; width: 100%; height: 100%; overflow: hidden; display: none; }
+        .anim-container.active { display: block; }
+        #bg-iframe { border: none; width: 100%; height: 100%; pointer-events: none; }
+
+        /* 1. Cross Pulse */
+        .cross-glow {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 8vw; height: 25vw; max-width: 80px; max-height: 250px;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.3); border-radius: 5px;
+            animation: pulse-glow 4s infinite alternate ease-in-out;
+        }
+        .cross-glow::before {
+            content: ''; position: absolute; top: 25%; left: -75%;
+            width: 250%; height: 30%; background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.3); border-radius: 5px;
+        }
+        @keyframes pulse-glow { 0% { opacity: 0.4; } 100% { opacity: 1; box-shadow: 0 0 80px rgba(255, 255, 255, 0.6); } }
+
+        /* 2. Starry Night */
+        .stars { background: #0a0a2a; position: absolute; width: 100%; height: 100%; }
+        .star {
+            position: absolute; background: white; border-radius: 50%;
+            animation: twinkle var(--duration) infinite alternate ease-in-out;
+        }
+        @keyframes twinkle { 0% { opacity: 0.2; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
+
+        /* ================= LAYER TEKS LIRIK ================= */
+        #text-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 10; padding: 4%; text-align: center;
+            color: white; font-weight: 700; letter-spacing: 1px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.9), 0px 0px 15px rgba(0,0,0,0.9);
+            transition: all 0.3s ease-in-out; pointer-events: none;
+        }
+        .text-layer-ticker-active { padding-bottom: 15vh !important; }
+
+        /* ================= LAYER ROLLING TEXT (TICKER) ================= */
+        #ticker-layer {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 10vh; min-height: 60px;
+            background: rgba(0, 0, 0, 0.85); z-index: 45; display: flex; align-items: center;
+            overflow: hidden; opacity: 0; pointer-events: none; transition: transform 0.4s, opacity 0.4s;
+            border-top: 2px solid rgba(255,255,255,0.3);
+            transform: translateY(100%);
+        }
+        #ticker-layer.show-ticker { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        .ticker-text {
+            white-space: nowrap; font-size: 6vh; font-weight: 800; color: #facc15; text-transform: uppercase;
+            letter-spacing: 2px; text-shadow: 2px 2px 4px #000;
+            transform: translateX(100vw); animation: scroll-left 18s linear infinite;
+        }
+        @keyframes scroll-left { 100% { transform: translateX(-100%); } }
+
+        /* ================= LAYER BLACK SCREEN ================= */
+        #black-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: black; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+        }
+
+        /* ================= TAP ZONES ================= */
+        .tap-zone { position: absolute; top: 0; height: 100%; width: 50%; z-index: 5; display: none; }
+        #tap-left { left: 0; }
+        #tap-right { right: 0; }
+
+        /* ================= PANEL KONTROL ================= */
+        #control-panel {
+            position: absolute; bottom: 0; left: 0; width: 100%; max-height: 80vh;
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px);
+            z-index: 100; border-top: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .panel-hidden { transform: translateY(100%); }
+
+        /* Tombol Hide dengan Posisi Dinamis */
+        #toggle-panel-btn {
+            position: fixed; right: 20px; z-index: 101;
+            background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(5px);
+            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+        
+        .btn { transition: transform 0.1s, filter 0.2s; }
+        .btn:active { transform: scale(0.95); filter: brightness(0.8); }
+        .slide-btn-active { background-color: #f59e0b !important; color: #000 !important; border-color: #fff !important; }
+        .song-active { background-color: rgba(59, 130, 246, 0.3) !important; border-left: 4px solid #3b82f6; }
+        
+        .bg-btn { transition: all 0.2s; cursor: pointer; }
+        .bg-btn:hover { background-color: #475569; }
+        .bg-btn-active { background-color: #3b82f6 !important; color: white !important; font-weight: bold; border-color: #93c5fd !important; }
+    </style>
+</head>
+<body>
+
+    <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded shadow-lg opacity-0 transition-opacity pointer-events-none z-[200] text-white font-bold text-sm">
+        Pesan Notifikasi
+    </div>
+
+    <!-- BACKGROUNDS -->
+    <div id="bg-layer">
+        <div id="anim-cross" class="anim-container active"><div class="cross-glow"></div></div>
+        <div id="anim-stars" class="anim-container"><div class="stars" id="star-container"></div></div>
+        <div id="anim-html" class="anim-container"><iframe id="bg-iframe"></iframe></div>
+    </div>
+
+    <!-- TEKS LIRIK -->
+    <div id="text-layer">
+        <div id="lyrics-display" style="font-size: 6vw; line-height: 1.4;">Memuat...</div>
+    </div>
+
+    <!-- TICKER -->
+    <div id="ticker-layer">
+        <div class="ticker-text" id="ticker-display">Pengumuman: Ibadah akan segera dimulai...</div>
+    </div>
+
+    <!-- BLACK SCREEN & TAP ZONES -->
+    <div id="black-layer"></div>
+    <div id="tap-left" class="tap-zone" onclick="handleTap('left')"></div>
+    <div id="tap-right" class="tap-zone" onclick="handleTap('right')"></div>
+
+    <button id="toggle-panel-btn" onclick="togglePanel()" class="btn p-3 rounded-full text-white border border-white/50 shadow-2xl">
+        <svg id="icon-chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+
+    <!-- MODAL TAMBAH/EDIT LAGU -->
+    <div id="song-modal" class="fixed inset-0 bg-black/80 z-[250] hidden flex justify-center items-center p-4 backdrop-blur-sm">
+        <div class="bg-slate-800 border border-slate-600 rounded-lg w-full max-w-lg p-5 flex flex-col shadow-2xl h-[85vh] md:h-auto">
+            <h3 id="modal-title" class="text-xl font-bold text-yellow-400 mb-4 flex-shrink-0">Tambah Lagu Baru</h3>
+            
+            <input type="hidden" id="modal-song-id">
+            
+            <div class="mb-3 flex-shrink-0">
+                <label class="block text-xs text-slate-400 mb-1 font-bold">Judul Lagu</label>
+                <input type="text" id="modal-song-title" class="w-full bg-slate-700 text-white p-2.5 rounded border border-slate-600 outline-none focus:border-blue-500" placeholder="Contoh: Bapa Engkau Sungguh Baik">
+            </div>
+            
+            <div class="mb-4 flex-1 flex flex-col min-h-0">
+                <label class="block text-xs text-slate-400 mb-1 font-bold">Lirik (Gunakan Tag [V1], [C1], dll)</label>
+                <textarea id="modal-song-lyrics" class="w-full flex-1 bg-slate-700 text-white p-2.5 rounded border border-slate-600 outline-none focus:border-blue-500 font-mono text-sm resize-none" placeholder="[V1]&#10;Lirik baris 1&#10;Lirik baris 2&#10;&#10;[C1]&#10;Reff baris 1..."></textarea>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-auto flex-shrink-0 pt-2 border-t border-slate-700">
+                <button onclick="closeSongModal()" class="px-5 py-2.5 rounded bg-slate-600 hover:bg-slate-500 text-white font-bold text-sm transition-colors">Batal</button>
+                <button onclick="saveSong()" class="px-5 py-2.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg transition-colors flex items-center gap-2">
+                    <span>💾</span> Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL UTAMA -->
+    <div id="control-panel" class="text-white flex flex-col md:flex-row shadow-2xl p-4 gap-4">
+        
+        <!-- KOLOM KIRI (Setlist) -->
+        <div class="flex-1 flex flex-col md:border-r border-slate-600 md:pr-4 h-[40vh] md:h-[70vh]">
+            
+            <div class="flex justify-between items-center mb-3">
+                <button onclick="loadFromSheet()" id="btn-sync" class="btn bg-blue-600 hover:bg-blue-500 text-sm px-3 py-2 rounded font-bold shadow flex-1 mr-2 truncate">
+                    🔄 Sync Cloud DB
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="toggleFullscreenBtn()" class="btn bg-slate-800 rounded px-3 py-1 border border-slate-600 text-slate-300 hover:text-white" title="Toggle Fullscreen">
+                        ⛶
+                    </button>
+                    <div class="flex items-center gap-2 bg-slate-800 rounded px-3 py-1 border border-slate-600">
+                        <span class="text-xs text-slate-400">Font</span>
+                        <button onclick="changeFontSize(-0.5)" class="btn text-xl font-bold px-2">-</button>
+                        <button onclick="changeFontSize(0.5)" class="btn text-xl font-bold px-2">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 mb-2 flex-shrink-0">
+                <input type="text" id="search-input" placeholder="Cari di DB Lokal..." class="flex-1 w-full bg-slate-800 text-white text-sm p-2 rounded border border-slate-600 outline-none focus:border-blue-500 min-w-0" oninput="filterDatabase()">
+                <button onclick="addToSetlist()" class="btn flex-shrink-0 bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded font-bold">+ Add</button>
+            </div>
+            
+            <select id="all-songs-dropdown" class="w-full flex-shrink-0 bg-slate-700 text-white text-sm p-2 rounded mb-3 border border-slate-600" onchange="handleDropdownChange()">
+                <option value="">-- Hasil Pencarian Lagu --</option>
+            </select>
+            
+            <h3 class="text-xs font-bold text-yellow-400 tracking-wider mb-2 border-b border-slate-700 pb-1 flex-shrink-0">SETLIST (Shortcut Tombol 1-9)</h3>
+            <ul id="setlist-container" class="flex-1 overflow-y-auto space-y-1 bg-slate-900/50 rounded p-1 pr-2">
+            </ul>
+        </div>
+
+        <!-- KOLOM KANAN (Pengaturan & Navigasi) -->
+        <div class="flex-1 flex flex-col h-[40vh] md:h-[70vh]">
+            
+            <div class="flex justify-between items-center mb-2 flex-shrink-0 border-b border-slate-700 pb-2">
+                <h2 class="font-bold text-xl text-yellow-300 truncate pr-2" id="current-song-title">Pilih Lagu...</h2>
+                <button id="btn-edit-song" onclick="editCurrentSong()" class="hidden flex-shrink-0 btn bg-slate-700 hover:bg-slate-600 text-xs px-3 py-1.5 rounded text-white border border-slate-500 shadow">
+                    ✏️ Edit
+                </button>
+            </div>
+            
+            <!-- AREA SCROLL KHUSUS PENGATURAN -->
+            <div class="flex-1 overflow-y-auto space-y-3 pr-2 pb-2">
+                
+                <!-- PENGATURAN BACKGROUND -->
+                <div class="bg-slate-800 p-3 rounded border border-slate-700 shadow-inner">
+                    <span class="text-xs text-slate-400 font-bold block mb-2 border-b border-slate-600 pb-1">Pilih Background Lagu:</span>
+                    
+                    <div class="flex flex-col gap-2">
+                        <!-- Bawaan -->
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <span class="text-[10px] text-slate-400 w-14 font-bold uppercase">Bawaan:</span>
+                            <button onclick="changeBackgroundAnim('anim-cross')" id="btn-bg-anim-cross" class="bg-btn bg-slate-700 border border-slate-500 px-2.5 py-1 rounded text-xs">Salib</button>
+                            <button onclick="changeBackgroundAnim('anim-stars')" id="btn-bg-anim-stars" class="bg-btn bg-slate-700 border border-slate-500 px-2.5 py-1 rounded text-xs">Bintang</button>
+                        </div>
+                        <!-- Image -->
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <span class="text-[10px] text-slate-400 w-14 font-bold uppercase">Gambar:</span>
+                            <button onclick="changeBackgroundAnim('img-1')" id="btn-bg-img-1" class="bg-btn bg-slate-700 border border-slate-500 px-3 py-1 rounded text-xs">1</button>
+                            <button onclick="changeBackgroundAnim('img-2')" id="btn-bg-img-2" class="bg-btn bg-slate-700 border border-slate-500 px-3 py-1 rounded text-xs">2</button>
+                            <button onclick="changeBackgroundAnim('img-3')" id="btn-bg-img-3" class="bg-btn bg-slate-700 border border-slate-500 px-3 py-1 rounded text-xs">3</button>
+                            <button onclick="changeBackgroundAnim('img-4')" id="btn-bg-img-4" class="bg-btn bg-slate-700 border border-slate-500 px-3 py-1 rounded text-xs">4</button>
+                            <button onclick="changeBackgroundAnim('img-5')" id="btn-bg-img-5" class="bg-btn bg-slate-700 border border-slate-500 px-3 py-1 rounded text-xs">5</button>
+                        </div>
+                        <!-- HTML -->
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <span class="text-[10px] text-slate-400 w-14 font-bold uppercase">HTML:</span>
+                            <button onclick="changeBackgroundAnim('html-1')" id="btn-bg-html-1" class="bg-btn bg-slate-700 border border-slate-500 px-3 py-1 rounded text-xs">1</button>
+                            <button onclick="changeBackgroundAnim('html-2')" id="btn-bg-html-2" class="bg-btn bg-slate-700 border border-slate-500 px-3 py-1 rounded text-xs">2</button>
+                            <button onclick="changeBackgroundAnim('html-3')" id="btn-bg-html-3" class="bg-btn bg-slate-700 border border-slate-500 px-3 py-1 rounded text-xs">3</button>
+                            <button onclick="changeBackgroundAnim('html-4')" id="btn-bg-html-4" class="bg-btn bg-slate-700 border border-slate-500 px-3 py-1 rounded text-xs">4</button>
+                            <button onclick="changeBackgroundAnim('html-5')" id="btn-bg-html-5" class="bg-btn bg-slate-700 border border-slate-500 px-3 py-1 rounded text-xs">5</button>
+                        </div>
+                        <!-- Gradasi -->
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <span class="text-[10px] text-slate-400 w-14 font-bold uppercase">Gradasi:</span>
+                            <button onclick="changeBackgroundAnim('grad-1')" id="btn-bg-grad-1" class="bg-btn bg-slate-700 border border-slate-500 px-3 py-1 rounded text-xs">1</button>
+                            <button onclick="changeBackgroundAnim('grad-2')" id="btn-bg-grad-2" class="bg-btn bg-slate-700 border border-slate-500 px-3 py-1 rounded text-xs">2</button>
+                            <button onclick="changeBackgroundAnim('grad-3')" id="btn-bg-grad-3" class="bg-btn bg-slate-700 border border-slate-500 px-3 py-1 rounded text-xs">3</button>
+                        </div>
+                    </div>
+
+                    <!-- Alat Tambahan -->
+                    <div id="bg-tools-container" class="mt-3 hidden bg-slate-900/80 p-2 rounded flex justify-between items-center border border-slate-700 border-dashed transition-all">
+                        <span id="bg-tool-info" class="text-xs text-yellow-400 font-bold">Slot kosong</span>
+                        
+                        <label id="upload-btn" class="btn bg-purple-600 hover:bg-purple-500 px-3 py-1.5 rounded cursor-pointer text-xs font-bold hidden flex-shrink-0">
+                            <span id="upload-label-text">Upload File</span>
+                            <input type="file" id="file-uploader" class="hidden" onchange="handleFileUpload(event)">
+                        </label>
+
+                        <div id="gradient-colors" class="hidden flex items-center gap-2">
+                            <input type="color" id="color1" value="#0f2027" class="w-8 h-8 cursor-pointer rounded border-0 shadow" onchange="applyCustomGradient()">
+                            <input type="color" id="color2" value="#203a43" class="w-8 h-8 cursor-pointer rounded border-0 shadow" onchange="applyCustomGradient()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ticker -->
+                <div class="bg-slate-800 p-2.5 rounded border border-slate-700 shadow-inner">
+                    <span class="text-xs text-slate-400 font-bold block mb-2">Pengumuman Berjalan:</span>
+                    <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                        <input type="text" id="ticker-input" placeholder="Ketik pengumuman..." class="flex-1 w-full min-w-0 bg-slate-700 text-white text-sm p-2 rounded border border-slate-600 outline-none" oninput="updateTickerText()">
+                        <button onclick="toggleTicker()" id="btn-ticker" class="btn bg-slate-600 border border-slate-500 px-4 py-2 rounded text-sm font-bold shadow w-full sm:w-auto flex-shrink-0 text-center">TAMPILKAN</button>
+                    </div>
+                </div>
+
+                <!-- Clear & Black -->
+                <div class="flex gap-2">
+                    <button onclick="toggleClear()" id="btn-clear" class="btn flex-1 bg-orange-600 px-3 py-2.5 rounded font-bold shadow text-sm">CLEAR TEXT</button>
+                    <button onclick="toggleBlack()" id="btn-black" class="btn flex-1 bg-black border border-slate-500 px-3 py-2.5 rounded font-bold shadow text-sm">BLACK SCREEN</button>
+                </div>
+
+                <!-- Navigation Tags (V1, C1) -->
+                <div class="w-full">
+                    <div id="quick-nav-container" class="flex flex-wrap gap-2 p-3 bg-slate-900 rounded border border-slate-700 shadow-inner min-h-[60px] items-start content-start">
+                        <span class="text-slate-500 text-sm italic">Belum ada lirik dimuat...</span>
+                    </div>
+                </div>
+                
+            </div> <!-- End of Scrollable Area -->
+
+            <!-- MENU DATABASE LOKAL (Ganti posisi Next/Prev) -->
+            <div class="flex flex-wrap gap-2 pt-3 border-t border-slate-700 flex-shrink-0">
+                <button onclick="openSongModal()" class="btn flex-1 bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded text-sm font-bold border border-emerald-400 shadow text-white flex justify-center items-center gap-1 min-w-[100px]">
+                    ➕ Tambah
+                </button>
+                
+                <label class="btn flex-1 bg-blue-600 hover:bg-blue-500 py-2.5 rounded text-sm font-bold border border-blue-400 shadow text-white text-center cursor-pointer min-w-[100px]">
+                    📥 Import JSON
+                    <input type="file" id="json-importer" class="hidden" accept=".json" onchange="importJSON(event)">
+                </label>
+                
+                <button onclick="exportJSON()" class="btn flex-1 bg-purple-600 hover:bg-purple-500 py-2.5 rounded text-sm font-bold border border-purple-400 shadow text-white flex justify-center items-center gap-1 min-w-[100px]">
+                    📤 Export JSON
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // URL GOOGLE APPS SCRIPT (Opsional sekarang)
+        // ==========================================
+        const API_URL = "https://script.google.com/macros/s/AKfycbyGI8OiB0xcg6-F0K1BXjW-J7uXo5lnai4_FF9r2FhkWKL0WxHpHMPecLeYrmPEOHuhxg/exec"; 
+        
+        let databaseLagu = []; let filteredDatabase = []; let setlist = [];      
+        let currentSongIndex = -1; let currentSlides = []; let currentSlideIndex = 0;
+        let fontSizeVw = 6; let isTextCleared = false; let isBlackScreen = false; let isTickerVisible = false;
+        
+        let panelVisible = true;
+        
+        // Slot Background & Gradasi
+        let customDataSlots = {
+            'img-1': localStorage.getItem('bg_img-1') || '', 'img-2': localStorage.getItem('bg_img-2') || '',
+            'img-3': localStorage.getItem('bg_img-3') || '', 'img-4': localStorage.getItem('bg_img-4') || '',
+            'img-5': localStorage.getItem('bg_img-5') || '',
+            'html-1': localStorage.getItem('bg_html-1') || '', 'html-2': localStorage.getItem('bg_html-2') || '',
+            'html-3': localStorage.getItem('bg_html-3') || '', 'html-4': localStorage.getItem('bg_html-4') || '',
+            'html-5': localStorage.getItem('bg_html-5') || '',
+        };
+
+        let gradientSlots = {
+            'grad-1': JSON.parse(localStorage.getItem('bg_grad-1')) || {c1: '#0f2027', c2: '#203a43'},
+            'grad-2': JSON.parse(localStorage.getItem('bg_grad-2')) || {c1: '#141e30', c2: '#243b55'},
+            'grad-3': JSON.parse(localStorage.getItem('bg_grad-3')) || {c1: '#4b6cb7', c2: '#182848'}
+        };
+
+        // --- FULLSCREEN LOGIC ---
+        function tryAutoFullscreen() {
+            const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            const isLandscape = window.innerWidth > window.innerHeight;
+            if (isTouchDevice && isLandscape && !document.fullscreenElement) {
+                let elem = document.documentElement;
+                if (elem.requestFullscreen) elem.requestFullscreen().catch(()=>{});
+                else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen().catch(()=>{});
+            }
+        }
+        window.addEventListener("orientationchange", () => setTimeout(tryAutoFullscreen, 500));
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+            tryAutoFullscreen();
+        }, {passive: true});
+
+        function toggleFullscreenBtn() {
+            if (!document.fullscreenElement) {
+                let elem = document.documentElement;
+                if (elem.requestFullscreen) elem.requestFullscreen().catch(()=>{});
+                else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen().catch(()=>{});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
+        }
+
+        // --- TOAST NOTIFICATION ---
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = `fixed top-5 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded shadow-lg transition-opacity z-[300] text-white font-bold text-sm ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+        }
+
+        // --- INITIALIZATION & LOCAL DATABASE LOGIC ---
+        function initLocalDatabase() {
+            const savedDb = localStorage.getItem('myLocalDatabaseV7');
+            if (savedDb) {
+                databaseLagu = JSON.parse(savedDb);
+            } else {
+                // Database default jika pertama kali buka
+                databaseLagu = [{ 
+                    id: Date.now(), 
+                    Judul: "Contoh Lagu Pertama", 
+                    Lirik: "[V1]\nIni adalah contoh lirik lagu\nAnda bisa mengedit atau menghapusnya\n\n[C1]\nIni adalah bagian Reff\nSilakan klik Tambah Lagu untuk memulai" 
+                }];
+                saveLocalDatabase();
+            }
+            filterDatabase();
+        }
+
+        function saveLocalDatabase() {
+            localStorage.setItem('myLocalDatabaseV7', JSON.stringify(databaseLagu));
+            filterDatabase(); 
+        }
+
+        window.onload = () => {
+            initStars();
+            
+            // Load Setlist
+            const savedSetlist = localStorage.getItem('mySetlistV7');
+            if (savedSetlist) { setlist = JSON.parse(savedSetlist); renderSetlist(); }
+            
+            // Load Database
+            initLocalDatabase();
+            
+            document.getElementById('lyrics-display').innerHTML = "Aplikasi Siap.<br><span style='font-size: 3vw; font-weight:normal;'>Silakan Pilih Lagu atau Tambah Lagu</span>";
+            updateToggleButtonPosition();
+        };
+
+        // --- MANAJEMEN MENU ---
+        const resizeObserver = new ResizeObserver(() => { if (panelVisible) updateToggleButtonPosition(); });
+        resizeObserver.observe(document.getElementById('control-panel'));
+
+        function updateToggleButtonPosition() {
+            const btn = document.getElementById('toggle-panel-btn');
+            const panel = document.getElementById('control-panel');
+            if(panelVisible) {
+                btn.style.bottom = `${panel.offsetHeight + 15}px`;
+                document.getElementById('icon-chevron').innerHTML = '<path d="m6 9 6 6 6-6"/>'; 
+            } else {
+                btn.style.bottom = '20px';
+                document.getElementById('icon-chevron').innerHTML = '<path d="m18 15-6-6-6 6"/>'; 
+            }
+        }
+
+        function togglePanel() {
+            const panel = document.getElementById('control-panel'); 
+            const tapLeft = document.getElementById('tap-left'); 
+            const tapRight = document.getElementById('tap-right');
+            
+            panelVisible = !panelVisible;
+            if(panelVisible) {
+                panel.classList.remove('panel-hidden'); 
+                tapLeft.style.display = 'none'; tapRight.style.display = 'none';
+            } else {
+                panel.classList.add('panel-hidden'); 
+                tapLeft.style.display = 'block'; tapRight.style.display = 'block';
+                showToast("Mode Presentasi: Tap (kiri/kanan), Swipe (Atas/Bawah), atau keyboard 1-9", false);
+            }
+            updateToggleButtonPosition();
+        }
+
+        // --- CRUD LAGU (TAMBAH / EDIT) ---
+        function openSongModal() {
+            document.getElementById('modal-title').innerText = "➕ Tambah Lagu Baru";
+            document.getElementById('modal-song-id').value = "";
+            document.getElementById('modal-song-title').value = "";
+            document.getElementById('modal-song-lyrics').value = "";
+            document.getElementById('song-modal').classList.remove('hidden');
+        }
+
+        function closeSongModal() {
+            document.getElementById('song-modal').classList.add('hidden');
+        }
+
+        function saveSong() {
+            const idInput = document.getElementById('modal-song-id').value;
+            const title = document.getElementById('modal-song-title').value.trim();
+            const lyrics = document.getElementById('modal-song-lyrics').value.trim();
+
+            if (!title) { showToast("Judul lagu tidak boleh kosong!", true); return; }
+
+            if (idInput) {
+                // Mode Edit
+                const index = databaseLagu.findIndex(l => l.id == idInput);
+                if (index > -1) {
+                    databaseLagu[index].Judul = title;
+                    databaseLagu[index].Lirik = lyrics;
+                    showToast("Lagu berhasil diperbarui");
+                    
+                    // Update juga di setlist jika lagu tersebut ada di setlist
+                    let updatedInSetlist = false;
+                    setlist.forEach((s, idx) => {
+                        if(s.id == idInput || s.Judul === title) {
+                            setlist[idx].Judul = title;
+                            setlist[idx].Lirik = lyrics;
+                            updatedInSetlist = true;
+                        }
+                    });
+                    if(updatedInSetlist) {
+                        saveSetlist(); 
+                        if(currentSongIndex > -1) loadSong(currentSongIndex); // reload if currently active
+                    }
+                }
+            } else {
+                // Mode Tambah Baru
+                databaseLagu.push({
+                    id: Date.now(), 
+                    Judul: title,
+                    Lirik: lyrics
+                });
+                showToast("Lagu baru berhasil ditambahkan");
+            }
+            
+            // Urutkan alfabet
+            databaseLagu.sort((a, b) => a.Judul.localeCompare(b.Judul));
+            
+            saveLocalDatabase();
+            closeSongModal();
+        }
+
+        function editCurrentSong() {
+            let titleText = document.getElementById('current-song-title').innerText.replace('[PREVIEW] ', '').trim();
+            let song = databaseLagu.find(l => l.Judul === titleText);
+            
+            if(song) {
+                document.getElementById('modal-title').innerText = "✏️ Edit Lagu";
+                document.getElementById('modal-song-id').value = song.id || ""; 
+                document.getElementById('modal-song-title').value = song.Judul;
+                document.getElementById('modal-song-lyrics').value = song.Lirik;
+                document.getElementById('song-modal').classList.remove('hidden');
+            } else {
+                showToast("Data lagu tidak ditemukan di database", true);
+            }
+        }
+
+        function showEditButton(show) {
+            const btn = document.getElementById('btn-edit-song');
+            if (show) btn.classList.remove('hidden'); else btn.classList.add('hidden');
+        }
+
+        // --- EXPORT & IMPORT JSON ---
+        function exportJSON() {
+            if(databaseLagu.length === 0) { showToast("Database kosong!", true); return; }
+            
+            const dataStr = JSON.stringify(databaseLagu, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            
+            // Format Tanggal untuk nama file
+            const date = new Date();
+            const dateStr = `${date.getFullYear()}${(date.getMonth()+1).toString().padStart(2,'0')}${date.getDate().toString().padStart(2,'0')}`;
+            
+            a.href = url;
+            a.download = `GWorship_DB_${dateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast("Database berhasil diexport!");
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        let addedCount = 0;
+                        let updatedCount = 0;
+                        
+                        importedData.forEach(importedSong => {
+                            if(!importedSong.Judul) return; // skip jika tidak ada judul
+                            if (!importedSong.id) importedSong.id = Date.now() + Math.random();
+                            
+                            // Cek apakah lagu dengan judul sama sudah ada
+                            const existsIndex = databaseLagu.findIndex(l => l.Judul.toLowerCase() === importedSong.Judul.toLowerCase());
+                            if (existsIndex === -1) {
+                                databaseLagu.push(importedSong);
+                                addedCount++;
+                            } else {
+                                // Jika ada, timpa liriknya dengan yang baru dari file import
+                                databaseLagu[existsIndex].Lirik = importedSong.Lirik;
+                                updatedCount++;
+                            }
+                        });
+                        
+                        databaseLagu.sort((a, b) => a.Judul.localeCompare(b.Judul));
+                        saveLocalDatabase();
+                        showToast(`Import Selesai: ${addedCount} lagu baru, ${updatedCount} diperbarui`);
+                    } else {
+                        showToast("Format file JSON tidak sesuai", true);
+                    }
+                } catch (error) {
+                    showToast("Gagal membaca/parsing file JSON", true);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ""; // Reset input file
+        }
+
+        // --- FUNGSI GOOGLE SHEET SYNC (Dimodifikasi jadi Merge) ---
+        async function loadFromSheet() {
+            if (API_URL.includes("GANTI_TEKS_INI")) { showToast("URL Google Script belum dimasukkan", true); return; }
+            const btn = document.getElementById('btn-sync');
+            const origText = btn.innerHTML; btn.innerHTML = "⏳ Syncing...";
+            try {
+                const response = await fetch(API_URL); 
+                const cloudData = await response.json(); 
+                
+                let addedCount = 0;
+                cloudData.forEach(cloudSong => {
+                     const existsIndex = databaseLagu.findIndex(l => l.Judul.toLowerCase() === cloudSong.Judul.toLowerCase());
+                     if (existsIndex === -1) {
+                         cloudSong.id = Date.now() + Math.random(); // Beri ID
+                         databaseLagu.push(cloudSong);
+                         addedCount++;
+                     } else {
+                         // Timpa lirik jika lagu sudah ada (Sync Sheet diprioritaskan)
+                         databaseLagu[existsIndex].Lirik = cloudSong.Lirik;
+                     }
+                });
+                
+                databaseLagu.sort((a, b) => a.Judul.localeCompare(b.Judul));
+                saveLocalDatabase();
+                
+                showToast(`Sync Selesai: ${addedCount} lagu baru dari Cloud ditambahkan`);
+            } catch (error) { 
+                showToast("Gagal koneksi internet/URL.", true); 
+            } finally { 
+                btn.innerHTML = origText; 
+            }
+        }
+
+        // --- GESTURE & KEYBOARD ---
+        let tapTimer = null; let isPinching = false; let initialPinchDistance = 0; let initialFontSizePinch = 0;
+        let touchStartY = 0; let touchEndY = 0; let didSwipe = false; let lastSwipeTime = 0;
+
+        function handleTap(direction) {
+            if(isPinching || (Date.now() - lastSwipeTime < 500)) return; 
+            
+            if (tapTimer === null) {
+                tapTimer = setTimeout(() => {
+                    if(direction === 'right') nextSlide(); else prevSlide();
+                    tapTimer = null;
+                }, 300);
+            } else {
+                clearTimeout(tapTimer); tapTimer = null;
+                showToast(direction === 'right' ? "Lagu Berikutnya" : "Lagu Sebelumnya");
+                
+                let nextIdx = direction === 'right' ? currentSongIndex + 1 : currentSongIndex - 1;
+                if (currentSongIndex === -1 && direction === 'right' && setlist.length > 0) nextIdx = 0;
+                if (currentSongIndex === -1 && direction === 'left') return; 
+
+                if(direction === 'right' && nextIdx < setlist.length) loadSong(nextIdx);
+                else if(direction === 'left' && nextIdx >= 0) loadSong(nextIdx);
+            }
+        }
+
+        function jumpToTag(targetTag) {
+            if (!currentSlides || currentSlides.length === 0) return;
+            const index = currentSlides.findIndex(slide => slide.tag && slide.tag.trim().toUpperCase() === targetTag.toUpperCase());
+            if (index !== -1) { goToSlide(index); showToast(`Loncat ke [${targetTag}]`); } 
+            else { showToast(`Bagian [${targetTag}] tidak ditemukan`, true); }
+        }
+
+        document.addEventListener('touchstart', (e) => {
+            // Cek apakah jari menyentuh modal
+            const inModal = e.target.closest('#song-modal');
+            if (!panelVisible && !inModal) {
+                if (e.touches.length === 2) {
+                    isPinching = true;
+                    const dx = e.touches[0].clientX - e.touches[1].clientX; const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    initialPinchDistance = Math.sqrt(dx * dx + dy * dy); initialFontSizePinch = fontSizeVw;
+                } else if (e.touches.length === 1) {
+                    touchStartY = e.touches[0].clientY; touchEndY = e.touches[0].clientY; didSwipe = false;
+                }
+            }
+        }, {passive: false});
+
+        document.addEventListener('touchmove', (e) => {
+            const inModal = e.target.closest('#song-modal');
+            if (!panelVisible && !inModal) {
+                if (e.touches.length === 2 && isPinching) {
+                    e.preventDefault(); 
+                    const dx = e.touches[0].clientX - e.touches[1].clientX; const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    const scale = Math.sqrt(dx * dx + dy * dy) / initialPinchDistance;
+                    let newSize = initialFontSizePinch * scale;
+                    if(newSize < 2) newSize = 2; if(newSize > 15) newSize = 15;
+                    fontSizeVw = newSize; document.getElementById('lyrics-display').style.fontSize = `${fontSizeVw}vw`;
+                } else if (e.touches.length === 1) {
+                    touchEndY = e.touches[0].clientY;
+                    if (Math.abs(touchStartY - touchEndY) > 20) didSwipe = true;
+                }
+            }
+        }, {passive: false});
+
+        document.addEventListener('touchend', (e) => {
+            if (isPinching && e.touches.length < 2) {
+                setTimeout(() => { isPinching = false; }, 300);
+            } else if (!isPinching && didSwipe) {
+                const swipeDistance = touchStartY - touchEndY;
+                if (Math.abs(swipeDistance) > 50) { 
+                    lastSwipeTime = Date.now();
+                    if (swipeDistance > 0) jumpToTag('V1'); else jumpToTag('C1'); 
+                    if (e.cancelable) e.preventDefault();
+                }
+                setTimeout(() => { didSwipe = false; }, 100);
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            // Jangan jalankan shortcut jika user sedang mengetik di dalam input/textarea
+            if(['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+            
+            if(event.key >= '1' && event.key <= '9') {
+                const numIndex = parseInt(event.key) - 1;
+                if(numIndex < setlist.length) { loadSong(numIndex); showToast(`Lagu ${event.key}: ${setlist[numIndex].Judul}`); }
+                return; 
+            }
+            switch(event.key) {
+                case 'ArrowRight': nextSlide(); break;
+                case 'ArrowLeft': prevSlide(); break;
+                case 'ArrowDown': 
+                    let nextIdx = currentSongIndex === -1 ? 0 : currentSongIndex + 1;
+                    if(nextIdx < setlist.length) loadSong(nextIdx); 
+                    break;
+                case 'ArrowUp': if(currentSongIndex > 0) loadSong(currentSongIndex - 1); break;
+                case 'c': case 'C': toggleClear(); break;
+                case 'b': case 'B': toggleBlack(); break;
+                case 'z': case 'Z': jumpToTag('V1'); break;
+                case 'x': case 'X': jumpToTag('C1'); break;
+            }
+        });
+
+        // --- FILTER, PREVIEW, SETLIST ---
+        function filterDatabase() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const dropdown = document.getElementById('all-songs-dropdown');
+            filteredDatabase = databaseLagu.filter(lagu => lagu.Judul.toLowerCase().includes(searchTerm));
+            dropdown.innerHTML = '<option value="">-- Hasil Pencarian Lagu --</option>';
+            filteredDatabase.forEach((lagu) => {
+                const originalIndex = databaseLagu.findIndex(l => l.id === lagu.id || l.Judul === lagu.Judul);
+                let opt = document.createElement('option'); opt.value = originalIndex; opt.textContent = lagu.Judul;
+                dropdown.appendChild(opt);
+            });
+            if(filteredDatabase.length === 1 && searchTerm.length > 2) dropdown.selectedIndex = 1;
+        }
+
+        function handleDropdownChange() {
+            const dropdown = document.getElementById('all-songs-dropdown');
+            if (dropdown.value !== "") previewSong(dropdown.value);
+        }
+
+        function previewSong(dbIndex) {
+            currentSongIndex = -1; 
+            renderSetlist(); 
+            
+            const song = databaseLagu[dbIndex];
+            document.getElementById('current-song-title').innerHTML = "<span class='text-emerald-400'>[PREVIEW]</span> " + song.Judul;
+            showEditButton(true); // Tampilkan tombol edit
+            
+            changeBackgroundAnim(song.bgAnim || 'anim-cross');
+            
+            const rawText = song.Lirik; const parts = rawText.split(/\[(.*?)\]/g); currentSlides = [];
+            for (let i = 1; i < parts.length; i += 2) {
+                const text = parts[i+1] ? parts[i+1].trim().replace(/\n/g, '<br>') : "";
+                if(text) currentSlides.push({ tag: parts[i], text: text });
+            }
+            if(currentSlides.length === 0 && rawText.trim() !== "") currentSlides.push({ tag: "ALL", text: rawText.replace(/\n/g, '<br>') });
+
+            renderQuickNav(); 
+            if(currentSlides.length > 0) goToSlide(0); 
+            else document.getElementById('lyrics-display').innerHTML = "";
+        }
+
+        function addToSetlist() {
+            const dropdown = document.getElementById('all-songs-dropdown');
+            if (dropdown.value === "") return;
+            const song = JSON.parse(JSON.stringify(databaseLagu[dropdown.value]));
+            
+            song.bgAnim = currentBgSelector || 'anim-cross'; 
+            setlist.push(song); saveSetlist(); renderSetlist();
+            showToast("Ditambahkan ke setlist");
+            
+            loadSong(setlist.length - 1);
+        }
+
+        function removeFromSetlist(index) {
+            setlist.splice(index, 1); saveSetlist(); renderSetlist();
+            if(currentSongIndex === index) clearScreenReal();
+            else if (currentSongIndex > index) currentSongIndex--;
+            renderSetlist();
+        }
+
+        function saveSetlist() { localStorage.setItem('mySetlistV7', JSON.stringify(setlist)); }
+
+        function renderSetlist() {
+            const container = document.getElementById('setlist-container'); container.innerHTML = '';
+            setlist.forEach((song, idx) => {
+                let div = document.createElement('div');
+                div.className = `flex justify-between items-center p-2 rounded cursor-pointer hover:bg-slate-700 border-l-4 transition-colors ${idx === currentSongIndex ? 'song-active' : 'border-transparent bg-slate-800'}`;
+                let titleDiv = document.createElement('div'); titleDiv.className = "flex-1 overflow-hidden";
+                titleDiv.innerHTML = `<div class="text-sm font-bold truncate"><span class="text-slate-400 mr-1">[${idx + 1}]</span> ${song.Judul}</div>`;
+                titleDiv.onclick = () => loadSong(idx);
+                let delBtn = document.createElement('button'); delBtn.className = "text-slate-400 hover:text-red-400 font-bold px-3 py-1 ml-1 text-lg leading-none";
+                delBtn.innerHTML = "×"; delBtn.onclick = (e) => { e.stopPropagation(); removeFromSetlist(idx); }
+                div.appendChild(titleDiv); div.appendChild(delBtn); container.appendChild(div);
+            });
+        }
+
+        function loadSong(setlistIndex) {
+            currentSongIndex = setlistIndex; const song = setlist[setlistIndex];
+            document.getElementById('current-song-title').textContent = song.Judul;
+            showEditButton(true); // Tampilkan tombol edit
+            
+            changeBackgroundAnim(song.bgAnim || 'anim-cross');
+            renderSetlist();
+            
+            const rawText = song.Lirik; const parts = rawText.split(/\[(.*?)\]/g); currentSlides = [];
+            for (let i = 1; i < parts.length; i += 2) {
+                const text = parts[i+1] ? parts[i+1].trim().replace(/\n/g, '<br>') : "";
+                if(text) currentSlides.push({ tag: parts[i], text: text });
+            }
+            if(currentSlides.length === 0 && rawText.trim() !== "") currentSlides.push({ tag: "ALL", text: rawText.replace(/\n/g, '<br>') });
+
+            renderQuickNav(); if(currentSlides.length > 0) goToSlide(0); else document.getElementById('lyrics-display').innerHTML = "";
+        }
+
+        // --- RENDER SLIDES & BACKGROUND ---
+        function renderQuickNav() {
+            const container = document.getElementById('quick-nav-container'); container.innerHTML = '';
+            if(currentSlides.length === 0) { container.innerHTML = '<span class="text-slate-500 text-sm italic">Format lirik kosong</span>'; return; }
+            currentSlides.forEach((slide, idx) => {
+                let btn = document.createElement('button'); btn.id = `slide-btn-${idx}`;
+                btn.className = "btn bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-3 rounded border border-slate-500 shadow text-sm";
+                btn.textContent = slide.tag; btn.onclick = () => goToSlide(idx);
+                container.appendChild(btn);
+            });
+        }
+
+        function goToSlide(index) {
+            if (index < 0 || index >= currentSlides.length) return;
+            currentSlideIndex = index;
+            document.getElementById('lyrics-display').innerHTML = currentSlides[index].text;
+            document.querySelectorAll('[id^="slide-btn-"]').forEach(btn => btn.classList.remove('slide-btn-active'));
+            const activeBtn = document.getElementById(`slide-btn-${index}`); if(activeBtn) activeBtn.classList.add('slide-btn-active');
+            if(isTextCleared) toggleClear(); if(isBlackScreen) toggleBlack();
+        }
+
+        function nextSlide() { if (currentSlideIndex < currentSlides.length - 1) goToSlide(currentSlideIndex + 1); }
+        function prevSlide() { if (currentSlideIndex > 0) goToSlide(currentSlideIndex - 1); }
+
+        let currentBgSelector = 'anim-cross';
+
+        function initStars() {
+            const starContainer = document.getElementById('star-container');
+            for(let i=0; i<60; i++){
+                let star = document.createElement('div'); star.className = 'star';
+                star.style.width = Math.random() * 4 + 'px'; star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%'; star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--duration', (Math.random() * 3 + 1) + 's');
+                starContainer.appendChild(star);
+            }
+        }
+
+        function changeBackgroundAnim(selector) {
+            currentBgSelector = selector;
+            const bgLayer = document.getElementById('bg-layer');
+            const toolsContainer = document.getElementById('bg-tools-container');
+            const uploadBtn = document.getElementById('upload-btn');
+            const fileUploader = document.getElementById('file-uploader');
+            const toolInfo = document.getElementById('bg-tool-info');
+            const colorPickers = document.getElementById('gradient-colors');
+
+            document.querySelectorAll('.bg-btn').forEach(btn => btn.classList.remove('bg-btn-active'));
+            const activeBtn = document.getElementById('btn-bg-' + selector);
+            if(activeBtn) activeBtn.classList.add('bg-btn-active');
+            
+            document.querySelectorAll('.anim-container').forEach(el => el.classList.remove('active'));
+            bgLayer.style.backgroundImage = 'none';
+            toolsContainer.classList.add('hidden');
+            uploadBtn.classList.add('hidden');
+            colorPickers.classList.add('hidden');
+
+            if(currentSongIndex >= 0) { setlist[currentSongIndex].bgAnim = selector; saveSetlist(); }
+
+            if (selector.startsWith('img-')) {
+                toolsContainer.classList.remove('hidden'); uploadBtn.classList.remove('hidden');
+                uploadBtn.classList.replace('bg-blue-600', 'bg-purple-600');
+                fileUploader.accept = "image/*";
+                
+                if(customDataSlots[selector]) {
+                    bgLayer.style.backgroundImage = `url('${customDataSlots[selector]}')`;
+                    toolInfo.textContent = "✓ Gambar terpasang";
+                    toolInfo.className = "text-xs text-emerald-400 font-bold truncate pr-2";
+                    document.getElementById('upload-label-text').textContent = "Ganti Gambar";
+                } else {
+                    toolInfo.textContent = "⚠ Slot gambar kosong";
+                    toolInfo.className = "text-xs text-yellow-400 font-bold truncate pr-2";
+                    document.getElementById('upload-label-text').textContent = "Upload Gambar";
+                }
+                
+            } else if (selector.startsWith('html-')) {
+                toolsContainer.classList.remove('hidden'); uploadBtn.classList.remove('hidden');
+                uploadBtn.classList.replace('bg-purple-600', 'bg-blue-600');
+                fileUploader.accept = ".html,.htm";
+                
+                document.getElementById('anim-html').classList.add('active');
+                if(customDataSlots[selector]) {
+                    document.getElementById('bg-iframe').src = customDataSlots[selector];
+                    toolInfo.textContent = "✓ Animasi Web terpasang";
+                    toolInfo.className = "text-xs text-emerald-400 font-bold truncate pr-2";
+                    document.getElementById('upload-label-text').textContent = "Ganti Animasi";
+                } else {
+                    document.getElementById('bg-iframe').src = "";
+                    toolInfo.textContent = "⚠ Slot HTML kosong";
+                    toolInfo.className = "text-xs text-yellow-400 font-bold truncate pr-2";
+                    document.getElementById('upload-label-text').textContent = "Upload HTML";
+                }
+                
+            } else if (selector.startsWith('grad-')) {
+                toolsContainer.classList.remove('hidden'); colorPickers.classList.remove('hidden');
+                toolInfo.textContent = "Warna Gradasi " + selector.split('-')[1] + ":";
+                toolInfo.className = "text-xs text-slate-300 font-bold";
+                
+                document.getElementById('color1').value = gradientSlots[selector].c1;
+                document.getElementById('color2').value = gradientSlots[selector].c2;
+                applyCustomGradient();
+                
+            } else {
+                const animEl = document.getElementById(selector); if(animEl) animEl.classList.add('active');
+            }
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const dataUrl = e.target.result;
+                    customDataSlots[currentBgSelector] = dataUrl;
+                    try {
+                        localStorage.setItem('bg_' + currentBgSelector, dataUrl);
+                        showToast("Berhasil disimpan ke slot!");
+                    } catch(err) { showToast("Memori HP Penuh! Gunakan file yang lebih kecil (KB).", true); }
+                    changeBackgroundAnim(currentBgSelector);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function applyCustomGradient() {
+            const c1 = document.getElementById('color1').value; 
+            const c2 = document.getElementById('color2').value;
+            document.getElementById('bg-layer').style.backgroundImage = `linear-gradient(135deg, ${c1}, ${c2})`;
+            
+            if(currentBgSelector.startsWith('grad-')) {
+                gradientSlots[currentBgSelector] = {c1, c2};
+                localStorage.setItem('bg_' + currentBgSelector, JSON.stringify({c1, c2}));
+            }
+        }
+
+        // --- KONTROL TAMBAHAN ---
+        function updateTickerText() { document.getElementById('ticker-display').innerHTML = document.getElementById('ticker-input').value; }
+
+        function toggleTicker() {
+            isTickerVisible = !isTickerVisible;
+            const tickerLayer = document.getElementById('ticker-layer'); const textLayer = document.getElementById('text-layer');
+            const btn = document.getElementById('btn-ticker');
+            
+            if (isTickerVisible) {
+                updateTickerText(); 
+                tickerLayer.classList.add('show-ticker'); textLayer.classList.add('text-layer-ticker-active');
+                btn.className = "btn bg-emerald-600 border border-emerald-500 px-4 py-2 rounded text-sm font-bold shadow text-white w-full sm:w-auto text-center";
+                btn.innerText = "SEMBUNYIKAN";
+            } else {
+                tickerLayer.classList.remove('show-ticker'); textLayer.classList.remove('text-layer-ticker-active');
+                btn.className = "btn bg-slate-600 border border-slate-500 px-4 py-2 rounded text-sm font-bold shadow text-white w-full sm:w-auto text-center";
+                btn.innerText = "TAMPILKAN";
+            }
+        }
+
+        function changeFontSize(amount) {
+            fontSizeVw += amount;
+            if(fontSizeVw < 2) fontSizeVw = 2; if(fontSizeVw > 15) fontSizeVw = 15; 
+            document.getElementById('lyrics-display').style.fontSize = `${fontSizeVw}vw`;
+        }
+
+        function toggleClear() {
+            isTextCleared = !isTextCleared;
+            document.getElementById('text-layer').style.opacity = isTextCleared ? '0' : '1';
+            document.getElementById('btn-clear').className = `btn flex-1 px-3 py-2.5 rounded font-bold shadow text-sm ${isTextCleared ? 'bg-red-600' : 'bg-orange-600'}`;
+        }
+
+        function toggleBlack() {
+            isBlackScreen = !isBlackScreen;
+            document.getElementById('black-layer').style.opacity = isBlackScreen ? '1' : '0';
+            document.getElementById('btn-black').className = `btn flex-1 px-3 py-2.5 rounded font-bold shadow text-sm ${isBlackScreen ? 'bg-red-600' : 'bg-black border border-slate-500'}`;
+        }
+
+        function clearScreenReal() {
+            document.getElementById('current-song-title').textContent = "Pilih Lagu...";
+            document.getElementById('quick-nav-container').innerHTML = '<span class="text-slate-500 text-sm italic">Belum ada lirik dimuat...</span>';
+            document.getElementById('lyrics-display').innerHTML = '';
+            showEditButton(false);
+            currentSlides = []; currentSongIndex = -1;
+        }
+    </script>
+</body>
+</html>
