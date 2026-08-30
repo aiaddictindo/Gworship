@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animasi Palungan Malam Kudus</title>
+    <style>
+        /* Mengatur agar canvas memenuhi seluruh layar dan menghilangkan scrollbar */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #030408; /* Warna dasar gelap */
+            font-family: sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvasAnimasi"></canvas>
+
+<script>
+    const canvas = document.getElementById('canvasAnimasi');
+    const ctx = canvas.getContext('2d');
+
+    let w, h;
+    let stars = [];
+    const JUMLAH_BINTANG = 300;
+
+    // Fungsi untuk menyesuaikan ukuran canvas saat layar diubah (responsive)
+    function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+        inisialisasiBintang();
+    }
+
+    // Class untuk Bintang di latar belakang
+    class Bintang {
+        constructor() {
+            this.x = Math.random() * w;
+            this.y = Math.random() * h;
+            this.ukuran = Math.random() * 1.5 + 0.5;
+            // Menambahkan sedikit variasi warna untuk bintang (putih, kebiruan, kemerahan)
+            const warnaBintang = ['#ffffff', '#aaddff', '#ffddaa', '#ffbbbb'];
+            this.warna = warnaBintang[Math.floor(Math.random() * warnaBintang.length)];
+            
+            // Kecepatan berkedip dan fase awal yang acak
+            this.fase = Math.random() * Math.PI * 2;
+            this.kecepatanBerkedip = 0.01 + Math.random() * 0.03;
+        }
+
+        gambar(ctx) {
+            // Menghitung opasitas menggunakan gelombang sinus agar berkedip halus
+            let opasitas = 0.3 + Math.abs(Math.sin(this.fase)) * 0.7;
+            this.fase += this.kecepatanBerkedip;
+
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.ukuran, 0, Math.PI * 2);
+            ctx.fillStyle = this.warna;
+            ctx.globalAlpha = opasitas;
+            ctx.fill();
+            ctx.globalAlpha = 1.0; // Kembalikan opasitas
+        }
+    }
+
+    function inisialisasiBintang() {
+        stars = [];
+        for (let i = 0; i < JUMLAH_BINTANG; i++) {
+            stars.push(new Bintang());
+        }
+    }
+
+    // Fungsi untuk menggambar latar belakang nebula
+    function gambarNebula() {
+        // Warna dasar
+        ctx.fillStyle = '#0a0d14';
+        ctx.fillRect(0, 0, w, h);
+
+        // Nebula Jingga/Merah di kiri atas
+        let gradKiri = ctx.createRadialGradient(w * 0.2, h * 0.3, 0, w * 0.2, h * 0.3, w * 0.6);
+        gradKiri.addColorStop(0, 'rgba(180, 60, 40, 0.35)');
+        gradKiri.addColorStop(1, 'rgba(180, 60, 40, 0)');
+        ctx.fillStyle = gradKiri;
+        ctx.fillRect(0, 0, w, h);
+
+        // Nebula Biru/Hijau (Cyan) di kanan
+        let gradKanan = ctx.createRadialGradient(w * 0.8, h * 0.4, 0, w * 0.8, h * 0.4, w * 0.5);
+        gradKanan.addColorStop(0, 'rgba(40, 100, 140, 0.35)');
+        gradKanan.addColorStop(1, 'rgba(40, 100, 140, 0)');
+        ctx.fillStyle = gradKanan;
+        ctx.fillRect(0, 0, w, h);
+
+        // Nebula Ungu di tengah atas
+        let gradTengah = ctx.createRadialGradient(w * 0.6, h * 0.2, 0, w * 0.6, h * 0.2, w * 0.4);
+        gradTengah.addColorStop(0, 'rgba(120, 50, 150, 0.25)');
+        gradTengah.addColorStop(1, 'rgba(120, 50, 150, 0)');
+        ctx.fillStyle = gradTengah;
+        ctx.fillRect(0, 0, w, h);
+        
+        // Kabut putih/terang di bagian bawah (mendekati tanah)
+        let gradBawah = ctx.createLinearGradient(0, h, 0, h - (h * 0.3));
+        gradBawah.addColorStop(0, 'rgba(200, 210, 230, 0.25)');
+        gradBawah.addColorStop(1, 'transparent');
+        ctx.fillStyle = gradBawah;
+        ctx.fillRect(0, 0, w, h);
+    }
+
+    // Fungsi untuk menggambar Bintang Utama dan Pancaran Cahayanya
+    function gambarBintangUtama(waktu) {
+        const xTengah = w / 2;
+        const yBintang = h * 0.15;
+        
+        // Efek denyut pada pancaran cahaya
+        const denyut = Math.sin(waktu * 0.002) * 0.1;
+
+        // 1. Pancaran cahaya ke bawah (Beam)
+        let beamGrad = ctx.createLinearGradient(xTengah, yBintang, xTengah, h);
+        beamGrad.addColorStop(0, `rgba(255, 240, 220, ${0.4 + denyut})`);
+        beamGrad.addColorStop(0.5, `rgba(255, 240, 220, ${0.1 + denyut/2})`);
+        beamGrad.addColorStop(1, 'transparent');
+        
+        ctx.beginPath();
+        // Membentuk pancaran cahaya seperti segitiga yang melebar ke bawah
+        ctx.moveTo(xTengah - 5, yBintang);
+        ctx.lineTo(xTengah + 5, yBintang);
+        ctx.lineTo(xTengah + w * 0.2, h);
+        ctx.lineTo(xTengah - w * 0.2, h);
+        ctx.fillStyle = beamGrad;
+        ctx.fill();
+
+        // 2. Kilauan Bintang (Cahaya menyilang)
+        ctx.save();
+        ctx.translate(xTengah, yBintang);
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.8 + denyut})`;
+        
+        // Bentuk salib/silang bintang
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 4, 80 + (denyut * 50), 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 80 + (denyut * 50), 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Inti bintang (bulatan bercahaya)
+        let intiGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, 40);
+        intiGrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        intiGrad.addColorStop(0.2, 'rgba(255, 240, 200, 0.8)');
+        intiGrad.addColorStop(1, 'rgba(255, 240, 200, 0)');
+        ctx.fillStyle = intiGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, 40, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.restore();
+    }
+
+    // Fungsi untuk menggambar siluet kandang dan palungan
+    function gambarSiluet() {
+        ctx.fillStyle = '#0a0a0c'; // Warna siluet sangat gelap
+
+        // Skala responsif berdasarkan tinggi dan lebar layar
+        const skala = Math.min(w, h) / 1000;
+        const xTengah = w / 2;
+        const lantaiY = h - (h * 0.05); // Posisi tanah
+        
+        // 1. Menggambar Tanah (Gundukan bukit)
+        ctx.beginPath();
+        ctx.moveTo(0, h);
+        ctx.quadraticCurveTo(w / 2, h - (100 * skala), w, h);
+        ctx.lineTo(0, h);
+        ctx.fill();
+
+        // 2. Menggambar Tiang Kandang
+        const lebarKandang = 350 * skala;
+        const tinggiKandang = 300 * skala;
+        const atapY = lantaiY - tinggiKandang;
+        
+        // Tiang Kiri
+        ctx.fillRect(xTengah - lebarKandang/2, atapY + (40 * skala), 15 * skala, tinggiKandang);
+        // Tiang Kanan
+        ctx.fillRect(xTengah + lebarKandang/2 - (15 * skala), atapY + (40 * skala), 15 * skala, tinggiKandang);
+        
+        // Balok melintang atas
+        ctx.fillRect(xTengah - lebarKandang/2 - (20 * skala), atapY + (40 * skala), lebarKandang + (40 * skala), 15 * skala);
+
+        // 3. Menggambar Atap Jerami (Rumbia)
+        ctx.beginPath();
+        ctx.moveTo(xTengah, atapY - (60 * skala)); // Puncak atap
+        
+        // Sudut kiri atap dengan efek bergerigi
+        let curX = xTengah;
+        let curY = atapY - (60 * skala);
+        const batasKiri = xTengah - lebarKandang/2 - (60 * skala);
+        const bawahAtapKiri = atapY + (80 * skala);
+        
+        // Garis kasar ke kiri bawah
+        ctx.lineTo(batasKiri, bawahAtapKiri);
+        // Garis kasar kembali ke kanan atas untuk membuat tekstur jerami
+        for(let i=0; i<15; i++) {
+            let px = batasKiri + (i * ((xTengah-batasKiri)/15));
+            let py = bawahAtapKiri - (i * ((bawahAtapKiri - (atapY - 60*skala))/15));
+            ctx.lineTo(px + (Math.random() * 20 - 10) * skala, py + (Math.random() * 20 - 10) * skala);
+        }
+        
+        // Sudut kanan atap
+        const batasKanan = xTengah + lebarKandang/2 + (60 * skala);
+        const bawahAtapKanan = atapY + (80 * skala);
+        
+        ctx.moveTo(xTengah, atapY - (60 * skala));
+        ctx.lineTo(batasKanan, bawahAtapKanan);
+        
+        for(let i=0; i<15; i++) {
+            let px = batasKanan - (i * ((batasKanan-xTengah)/15));
+            let py = bawahAtapKanan - (i * ((bawahAtapKanan - (atapY - 60*skala))/15));
+            ctx.lineTo(px + (Math.random() * 20 - 10) * skala, py + (Math.random() * 20 - 10) * skala);
+        }
+        ctx.fill();
+
+        // 4. Menggambar Palungan (Tempat tidur bayi)
+        const lebarPalungan = 80 * skala;
+        const tinggiPalungan = 50 * skala;
+        const yPalungan = lantaiY - (40 * skala); // Mengambang di atas tanah
+        
+        ctx.beginPath();
+        // Kaki palungan silang (X) kiri
+        ctx.moveTo(xTengah - lebarPalungan/2 + (10*skala), yPalungan + tinggiPalungan);
+        ctx.lineTo(xTengah - lebarPalungan/2 - (10*skala), yPalungan);
+        ctx.moveTo(xTengah - lebarPalungan/2 - (10*skala), yPalungan + tinggiPalungan);
+        ctx.lineTo(xTengah - lebarPalungan/2 + (10*skala), yPalungan);
+        
+        // Kaki palungan silang (X) kanan
+        ctx.moveTo(xTengah + lebarPalungan/2 - (10*skala), yPalungan + tinggiPalungan);
+        ctx.lineTo(xTengah + lebarPalungan/2 + (10*skala), yPalungan);
+        ctx.moveTo(xTengah + lebarPalungan/2 + (10*skala), yPalungan + tinggiPalungan);
+        ctx.lineTo(xTengah + lebarPalungan/2 - (10*skala), yPalungan);
+        ctx.lineWidth = 4 * skala;
+        ctx.strokeStyle = '#0a0a0c';
+        ctx.stroke();
+
+        // Kotak palungan
+        ctx.fillRect(xTengah - lebarPalungan/2, yPalungan, lebarPalungan, tinggiPalungan/2);
+        
+        // Siluet Bayi di dalam palungan (setengah lingkaran)
+        ctx.beginPath();
+        ctx.arc(xTengah - (5*skala), yPalungan, 12 * skala, Math.PI, 0);
+        ctx.fill();
+    }
+
+    // Loop Animasi Utama
+    function loopAnimasi(waktu) {
+        // Membersihkan canvas setiap frame (ditutupi oleh gambar nebula)
+        ctx.clearRect(0, 0, w, h);
+
+        // 1. Gambar latar belakang galaksi/nebula statis
+        gambarNebula();
+
+        // 2. Update dan gambar bintang-bintang berkelap-kelip
+        stars.forEach(bintang => bintang.gambar(ctx));
+
+        // 3. Gambar bintang utama bersinar dengan efek denyut
+        gambarBintangUtama(waktu);
+
+        // 4. Gambar siluet di depan
+        gambarSiluet();
+
+        // Panggil frame berikutnya
+        requestAnimationFrame(loopAnimasi);
+    }
+
+    // Inisialisasi awal
+    window.addEventListener('resize', resize);
+    resize(); // Set ukuran awal
+    requestAnimationFrame(loopAnimasi); // Mulai animasi
+
+</script>
+</body>
+</html>
