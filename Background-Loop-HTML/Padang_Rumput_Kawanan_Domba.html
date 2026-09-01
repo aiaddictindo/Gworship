@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Background Loop - Padang Rumput</title>
+    <style>
+        /* RESET & PENGATURAN DASAR (100% Layar) */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden; /* Mencegah scroll */
+            background: linear-gradient(180deg, #ffecd2 0%, #fcb69f 100%); /* Warna senja/pagi yang damai */
+            font-family: sans-serif;
+        }
+
+        /* EFEK CAHAYA (GOD RAYS) */
+        .light-rays {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-conic-gradient(
+                from 0deg,
+                rgba(255, 255, 255, 0.1) 0deg 15deg,
+                transparent 15deg 30deg
+            );
+            animation: rotateRays 120s linear infinite;
+            transform-origin: center;
+            z-index: 1;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+
+        @keyframes rotateRays {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* MATAHARI BERCAHAYA */
+        .sun {
+            position: absolute;
+            top: 20vh;
+            left: 50vw;
+            width: 15vw;
+            height: 15vw;
+            min-width: 120px;
+            min-height: 120px;
+            background: radial-gradient(circle, #ffffff 0%, #fff0a8 40%, transparent 80%);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 100px 40px rgba(255, 235, 150, 0.6);
+            z-index: 2;
+            animation: pulseSun 4s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulseSun {
+            0% { transform: translateX(-50%) scale(1); opacity: 0.9; }
+            100% { transform: translateX(-50%) scale(1.05); opacity: 1; }
+        }
+
+        /* PERBUKITAN PADANG RUMPUT BERLAPIS (Murni CSS) */
+        .landscape {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .hill {
+            position: absolute;
+            border-radius: 50%;
+            filter: drop-shadow(0 -5px 15px rgba(0,0,0,0.15));
+        }
+
+        /* Bukit Belakang */
+        .hill-1 {
+            width: 160vw;
+            height: 60vh;
+            left: -30vw;
+            bottom: -25vh;
+            background: linear-gradient(180deg, #8ba832 0%, #6b8227 100%);
+        }
+
+        /* Bukit Tengah */
+        .hill-2 {
+            width: 140vw;
+            height: 45vh;
+            right: -20vw;
+            bottom: -20vh;
+            background: linear-gradient(180deg, #9fbf3b 0%, #7d962e 100%);
+        }
+
+        /* Bukit Depan */
+        .hill-3 {
+            width: 130vw;
+            height: 35vh;
+            left: -15vw;
+            bottom: -15vh;
+            background: linear-gradient(180deg, #b5d943 0%, #8ca834 100%);
+        }
+
+        /* WADAH KAWANAN BINATANG */
+        #herd-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* STYLING KAWANAN */
+        .animal-wrapper {
+            position: absolute;
+            left: 0;
+            top: 0;
+            will-change: transform; /* Optimasi CPU/GPU */
+        }
+
+        .animal-body {
+            font-size: 50px; /* Ukuran dasar, akan diskalakan oleh JS */
+            user-select: none;
+            filter: drop-shadow(4px 10px 5px rgba(0, 40, 0, 0.3));
+            transform-origin: bottom center;
+            /* Efek berjalan (naik turun dan sedikit rotasi) */
+            animation: walk infinite alternate ease-in-out;
+        }
+
+        /* Animasi Berjalan (Otomatis dibalik secara horizontal agar menghadap kanan) */
+        @keyframes walk {
+            0% { transform: scaleX(-1) translateY(0) rotate(-4deg); }
+            100% { transform: scaleX(-1) translateY(-12px) rotate(4deg); }
+        }
+
+        /* KANVAS UNTUK EFEK PARTIKEL UDARA/DEBU CAHAYA */
+        #dust-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+        
+        /* AWAN */
+        .clouds-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 50%;
+            z-index: 2; pointer-events: none;
+        }
+        
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50px;
+            filter: blur(10px);
+            animation: floatCloud linear infinite;
+        }
+        
+        @keyframes floatCloud {
+            0% { transform: translateX(-15vw); }
+            100% { transform: translateX(115vw); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pancaran Cahaya & Matahari -->
+    <div class="light-rays"></div>
+    <div class="sun"></div>
+    
+    <!-- Awan Bergerak -->
+    <div class="clouds-container" id="clouds"></div>
+
+    <!-- Perbukitan Belakang (Background) -->
+    <div class="landscape">
+        <div class="hill hill-1"></div>
+        <div class="hill hill-2"></div>
+        <div class="hill hill-3"></div>
+    </div>
+
+    <!-- Area dimana binatang akan berjalan -->
+    <div id="herd-container"></div>
+
+    <!-- Efek Partikel Syahdu -->
+    <canvas id="dust-canvas"></canvas>
+
+    <script>
+        /**
+         * 1. SISTEM KAWANAN BINATANG (HERD SYSTEM)
+         * Mengatur logika pembuatan binatang, posisi kedalaman (parallax),
+         * dan saling menyalip.
+         */
+        const herdContainer = document.getElementById('herd-container');
+        
+        // Pengaturan Kawanan
+        const NUM_ANIMALS = 30; 
+        const animalTypes = ['🐑', '🐑', '🐑', '🐑', '🐑', '🐏']; // Mayoritas domba, sesekali domba jantan bercula
+        const herd = [];
+
+        for (let i = 0; i < NUM_ANIMALS; i++) {
+            // Pembuatan elemen DOM
+            const wrapper = document.createElement('div');
+            wrapper.className = 'animal-wrapper';
+            
+            const body = document.createElement('div');
+            body.className = 'animal-body';
+            body.innerText = animalTypes[Math.floor(Math.random() * animalTypes.length)];
+            
+            // Variasi animasi berjalan agar kaki mereka tidak melangkah serentak
+            body.style.animationDelay = `-${Math.random() * 2}s`;
+            body.style.animationDuration = `${0.35 + Math.random() * 0.25}s`;
+
+            wrapper.appendChild(body);
+            herdContainer.appendChild(wrapper);
+
+            // Perhitungan Parallax Depth (Kedalaman 0 sampai 1)
+            // Dipangkatkan agar lebih banyak binatang terkumpul di kejauhan (depth kecil)
+            const depth = Math.pow(Math.random(), 1.5); 
+            
+            // Kalkulasi Skala & Kecepatan berdasarkan Depth
+            // Semakin dekat (depth tinggi) = Semakin besar & Semakin cepat (Saling mendahului)
+            const scale = 0.3 + (depth * 1.3); // Ukuran 0.3x hingga 1.6x
+            const baseSpeed = 30; // Pixel per detik minimal
+            const speed = (baseSpeed + (depth * 50)) + (Math.random() * 15); // Tambahan random agar sesama di jalur sama bisa menyalip
+            
+            // Posisi X awal diacak merata di seluruh layar dan luar layar
+            const x = (Math.random() * window.innerWidth * 1.5) - (window.innerWidth * 0.2);
+
+            herd.push({
+                element: wrapper,
+                x: x,
+                yRatio: depth, // Simpan ratio, bukan pixel, agar adaptif saat layar di-resize
+                scale: scale,
+                speed: speed
+            });
+        }
+        
+        /**
+         * 2. PEMBUATAN AWAN
+         */
+        const cloudsContainer = document.getElementById('clouds');
+        for(let i=0; i<4; i++) {
+            const cloud = document.createElement('div');
+            cloud.className = 'cloud';
+            cloud.style.width = `${10 + Math.random() * 20}vw`;
+            cloud.style.height = `${5 + Math.random() * 5}vh`;
+            cloud.style.top = `${5 + Math.random() * 25}vh`;
+            cloud.style.animationDuration = `${60 + Math.random() * 60}s`;
+            cloud.style.animationDelay = `-${Math.random() * 60}s`; // Agar posisi acak saat dimuat
+            cloud.style.opacity = 0.4 + Math.random() * 0.4;
+            cloudsContainer.appendChild(cloud);
+        }
+
+        /**
+         * 3. SISTEM PARTIKEL DEBU CAHAYA (CANVAS)
+         */
+        const canvas = document.getElementById('dust-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        
+        function initCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            
+            particles = [];
+            const numParticles = Math.floor(width / 25); // Partikel menyesuaikan ukuran layar
+            for (let i = 0; i < numParticles; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    r: Math.random() * 2 + 0.5,
+                    dx: (Math.random() - 0.5) * 0.5,
+                    dy: -Math.random() * 0.8 - 0.2, // Selalu melayang ke atas
+                    opacity: Math.random() * 0.5 + 0.1
+                });
+            }
+        }
+        initCanvas();
+
+        window.addEventListener('resize', initCanvas);
+
+        /**
+         * 4. MAIN ANIMATION LOOP (Menyatukan Canvas & DOM)
+         * Menggunakan requestAnimationFrame dan deltaTime agar kecepatan 
+         * stabil baik di monitor 60hz maupun 144hz.
+         */
+        let lastTime = 0;
+
+        function animate(time) {
+            if (!lastTime) lastTime = time;
+            const dt = (time - lastTime) / 1000; // Delta time (detik)
+            lastTime = time;
+
+            // --- Update Posisi Kawanan Domba ---
+            // Kalkulasi batas jalan agar responsif setiap frame 
+            const yMin = height * 0.50; // Mulai daratan di 50% tinggi layar
+            const yMax = height * 0.85; // Batas bawah daratan di 85% layar
+
+            herd.forEach(animal => {
+                // Pergerakan ke Kanan
+                animal.x += animal.speed * dt;
+                
+                // Infinite Loop: Jika melewati ujung kanan, kembalikan ke ujung kiri luar
+                if (animal.x > width + (100 * animal.scale)) {
+                    animal.x = -(150 * animal.scale);
+                }
+
+                // Kalkulasi Pixel Y berdasarkan Ratio (Responsif mutlak)
+                const currentY = yMin + (animal.yRatio * (yMax - yMin));
+                
+                // Z-index dinamis berdasar posisi Y untuk ilusi 3D (yang di bawah menutupi yang di atas)
+                animal.element.style.zIndex = Math.floor(currentY);
+                
+                // Render Posisi (Menggunakan translate3d agar di-render oleh GPU)
+                animal.element.style.transform = `translate3d(${animal.x}px, ${currentY}px, 0) scale(${animal.scale})`;
+            });
+
+            // --- Update & Gambar Partikel Canvas ---
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#ffffff';
+            
+            particles.forEach(p => {
+                p.x += p.dx;
+                p.y += p.dy;
+                
+                // Loop partikel melayang
+                if (p.y < -10) p.y = height + 10;
+                if (p.x < 0) p.x = width;
+                if (p.x > width) p.x = 0;
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.globalAlpha = p.opacity;
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1.0; // Reset alpha
+
+            requestAnimationFrame(animate);
+        }
+        
+        // Mulai animasi
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
