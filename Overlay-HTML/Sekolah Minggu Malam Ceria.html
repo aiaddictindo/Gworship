@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sekolah Minggu - Malam Ceria</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Nunito (Bulat, sangat jelas dibaca) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            /* Latar Malam Cerah (Twilight/Midnight Blue) */
+            background: linear-gradient(180deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%);
+            font-family: 'Nunito', sans-serif;
+            color: #FFFFFF;
+        }
+
+        /* --- DEKORASI BUKIT MALAM --- */
+        .hill {
+            position: absolute;
+            bottom: -50px;
+            border-radius: 50% 50% 0 0;
+            z-index: 5;
+        }
+        /* Bukit belakang (lebih gelap) */
+        .hill-bg {
+            background: #1e1b4b; /* Sangat gelap */
+            left: -10vw;
+            width: 70vw;
+            height: 25vh;
+            z-index: 4;
+        }
+        /* Bukit depan (sedikit lebih terang/biru malam) */
+        .hill-fg {
+            background: #2e1065; 
+            right: -20vw;
+            width: 80vw;
+            height: 20vh;
+        }
+
+        /* --- BINTANG LATAR BELAKANG --- */
+        .star-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle linear infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 8px 2px rgba(255,255,255,0.6); }
+        }
+
+        /* --- KUNANG-KUNANG BERGERAK (CANVAS-LIKE VIA CSS) --- */
+        .firefly {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #D9F99D; /* Hijau neon/kuning */
+            border-radius: 50%;
+            box-shadow: 0 0 15px 5px #BEF264;
+            animation: flyAround 15s ease-in-out infinite alternate;
+            z-index: 10;
+        }
+        /* Memberikan jalur terbang acak untuk tiap kunang-kunang */
+        .firefly:nth-child(1) { bottom: 10%; left: 20%; animation-duration: 12s; }
+        .firefly:nth-child(2) { bottom: 20%; left: 40%; animation-duration: 18s; animation-delay: -5s; }
+        .firefly:nth-child(3) { bottom: 5%; right: 30%; animation-duration: 15s; animation-delay: -2s; }
+        .firefly:nth-child(4) { bottom: 25%; right: 15%; animation-duration: 20s; animation-delay: -8s; }
+        .firefly:nth-child(5) { bottom: 15%; left: 70%; animation-duration: 14s; animation-delay: -10s; }
+
+        @keyframes flyAround {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+            25% { transform: translate(50px, -30px) scale(1.2); opacity: 1; }
+            50% { transform: translate(10px, -60px) scale(0.9); opacity: 0.6; }
+            75% { transform: translate(-40px, -20px) scale(1.1); opacity: 1; }
+            100% { transform: translate(-20px, 10px) scale(1); opacity: 0.8; }
+        }
+
+        /* --- ANIMASI BULAN --- */
+        .moon-float {
+            animation: moonBob 6s ease-in-out infinite alternate;
+            filter: drop-shadow(0 0 20px rgba(253, 230, 138, 0.4));
+        }
+        @keyframes moonBob {
+            0% { transform: translateY(0) rotate(-5deg); }
+            100% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        /* --- ANIMASI TEKS --- */
+        .text-transition {
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efek per/bouncy */
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+        .text-hidden {
+            opacity: 0;
+            transform: scale(0.5) translateY(-30px); /* Menghilang ke atas sambil mengecil */
+            transition: all 0.4s ease-in;
+        }
+
+        /* Outline & Glow Text Ceria */
+        .glow-title {
+            color: #FEF08A; /* Kuning pastel */
+            text-shadow: 
+                0 0 10px rgba(253, 224, 71, 0.5),
+                0 0 20px rgba(253, 224, 71, 0.3),
+                3px 3px 0 #B45309; /* 3D effect coklat */
+            -webkit-text-stroke: 2px #D97706;
+        }
+
+    </style>
+</head>
+<body class="relative h-screen w-screen flex flex-col items-center justify-center">
+
+    <!-- Kontainer Bintang Latar Belakang (Di-generate via JS di bawah) -->
+    <div id="stars" class="star-container"></div>
+
+    <!-- Bukit Malam -->
+    <div class="hill hill-bg"></div>
+    <div class="hill hill-fg"></div>
+
+    <!-- Kunang-kunang -->
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+
+    <!-- Bulan Sabit Tersenyum Kiri Atas -->
+    <div class="absolute top-[10%] left-[10%] moon-float z-10 w-24 h-24 md:w-32 md:h-32">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <!-- Bentuk Bulan Sabit -->
+            <path d="M 50,5 A 45,45 0 1,0 95,50 A 35,35 0 1,1 50,5 Z" fill="#FDE68A" />
+            <!-- Mata Pejam -->
+            <path d="M 25,35 Q 30,40 35,35" stroke="#92400E" stroke-width="3" stroke-linecap="round" fill="none"/>
+            <!-- Senyum -->
+            <path d="M 20,55 Q 35,70 50,55" stroke="#92400E" stroke-width="4" stroke-linecap="round" fill="none"/>
+            <!-- Pipi Merona -->
+            <circle cx="15" cy="45" r="5" fill="#FCA5A5" opacity="0.6"/>
+        </svg>
+    </div>
+
+    <!-- Bintang Jatuh Animasi CSS (Kanan Atas) -->
+    <style>
+        .shooting-star {
+            position: absolute;
+            top: 15%;
+            right: 20%;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,1));
+            animation: shootStar 6s linear infinite;
+            opacity: 0;
+            transform: rotate(-35deg);
+            z-index: 2;
+        }
+        .shooting-star::before {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: -2px;
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 3px white;
+        }
+        @keyframes shootStar {
+            0% { transform: rotate(-35deg) translateX(0); opacity: 1; }
+            10% { transform: rotate(-35deg) translateX(-300px); opacity: 0; }
+            100% { transform: rotate(-35deg) translateX(-300px); opacity: 0; }
+        }
+    </style>
+    <div class="shooting-star"></div>
+
+    <!-- KONTEN UTAMA (Tengah) -->
+    <div class="relative z-20 flex flex-col items-center justify-center text-center px-4 w-full max-w-4xl mt-[-5vh]">
+        
+        <!-- Label Acara -->
+        <div class="bg-indigo-900/60 backdrop-blur-sm rounded-full px-6 py-2 mb-8 shadow-lg border border-indigo-400/30">
+            <span class="text-indigo-200 font-bold text-sm md:text-lg tracking-widest uppercase flex items-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#FCD34D"><path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7.4-6.3-4.8-6.3 4.8 2.3-7.4-6-4.6h7.6z"/></svg>
+                Ibadah Malam Ceria
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#FCD34D"><path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7.4-6.3-4.8-6.3 4.8 2.3-7.4-6-4.6h7.6z"/></svg>
+            </span>
+        </div>
+
+        <!-- Wadah Teks Berputar -->
+        <div class="min-h-[220px] md:min-h-[280px] flex flex-col items-center justify-center w-full">
+            <h1 id="mainTitle" class="glow-title text-5xl md:text-7xl lg:text-[5.5rem] font-black mb-6 text-transition leading-tight">
+                Shalom Adik-Adik!
+            </h1>
+            
+            <div id="subContainer" class="text-transition bg-white/10 backdrop-blur-md px-8 py-4 rounded-3xl border border-white/20 shadow-xl">
+                <p id="subTitle" class="text-xl md:text-3xl font-bold text-white drop-shadow-md">
+                    Selamat Datang di Ibadah
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skrip untuk Interaktivitas Otomatis -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. GENERATE BINTANG BACKGROUND ACAK ---
+            const starContainer = document.getElementById('stars');
+            const numStars = 60; // Jumlah bintang
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Posisi Acak
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // Ukuran Acak (1px - 4px)
+                const size = Math.random() * 3 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Durasi kelap-kelip acak (2s - 6s)
+                star.style.animationDuration = `${Math.random() * 4 + 2}s`;
+                // Delay acak agar tidak berkelap-kelip bersamaan
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                
+                starContainer.appendChild(star);
+            }
+
+            // --- 2. LOGIKA ROTASI PESAN OTOMATIS ---
+            const pesanMalam = [
+                { judul: "Shalom Adik-Adik!", sub: "Selamat Datang di Ibadah 🌟" },
+                { judul: "Siapa Yang Semangat?", sub: "Ayo kita puji nama Tuhan! 🎸" },
+                { judul: "Duduk Yang Manis", sub: "Sebentar lagi kita mulai ya 😊" },
+                { judul: "Tuhan Yesus Baik!", sub: "Mari siapkan hati kita berdoa 🙏" }
+            ];
+
+            let indeks = 0;
+            const elJudul = document.getElementById('mainTitle');
+            const elSub = document.getElementById('subTitle');
+            const elSubContainer = document.getElementById('subContainer');
+
+            function putarPesan() {
+                // Sembunyikan
+                elJudul.classList.add('text-hidden');
+                elSubContainer.classList.add('text-hidden');
+
+                setTimeout(() => {
+                    // Ganti Konten
+                    indeks = (indeks + 1) % pesanMalam.length;
+                    
+                    elJudul.innerText = pesanMalam[indeks].judul;
+                    elSub.innerText = pesanMalam[indeks].sub;
+
+                    // Tampilkan kembali
+                    elJudul.classList.remove('text-hidden');
+                    elSubContainer.classList.remove('text-hidden');
+                }, 500); // Sinkron dengan durasi transisi 'text-hidden'
+            }
+
+            // Rotasi setiap 6 detik
+            setInterval(putarPesan, 6000);
+        });
+    </script>
+</body>
+</html>
