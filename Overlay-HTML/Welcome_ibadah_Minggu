@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sambutan Ibadah Gereja</title>
+    
+    <!-- Tailwind CSS untuk Styling Cepat & Responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Playfair Display (Elegan/Klasik) & Montserrat (Bersih/Modern) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #030712; /* Warna dasar sangat gelap */
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Latar Belakang Gradien Halus */
+        .bg-gradient-overlay {
+            background: radial-gradient(circle at center, rgba(17, 24, 39, 0) 0%, rgba(3, 7, 18, 0.8) 100%);
+        }
+
+        /* Animasi Transisi Teks */
+        .text-transition {
+            transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .text-hidden {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        /* Animasi Denyut Halus untuk Indikator */
+        .animate-pulse-slow {
+            animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Ornamen Kaca (Glassmorphism) */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="relative h-screen w-screen flex items-center justify-center">
+
+    <!-- Canvas untuk Partikel Cahaya Latar Belakang -->
+    <canvas id="particleCanvas" class="absolute inset-0 z-0 w-full h-full"></canvas>
+
+    <!-- Overlay Gradien untuk memberikan kedalaman -->
+    <div class="absolute inset-0 z-10 bg-gradient-overlay mix-blend-multiply"></div>
+
+    <!-- Konten Utama -->
+    <div class="relative z-20 flex flex-col items-center justify-center text-center px-4 w-full max-w-5xl">
+        
+        <!-- Ikon Salib Halus / Ornamen -->
+        <div class="mb-8 opacity-70">
+            <svg width="60" height="90" viewBox="0 0 60 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M29.5 0V90M0 30H60" stroke="#FDE047" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="29.5" cy="30" r="15" stroke="#FDE047" stroke-width="0.5" stroke-dasharray="2 4"/>
+            </svg>
+        </div>
+
+        <!-- Teks Berputar (Rotator) -->
+        <div class="min-h-[160px] md:min-h-[200px] flex flex-col items-center justify-center w-full">
+            <h1 id="mainTitle" class="font-serif text-5xl md:text-7xl lg:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-yellow-300 to-yellow-100 drop-shadow-sm font-semibold tracking-wide mb-4 text-transition">
+                Selamat Datang
+            </h1>
+            <p id="subTitle" class="text-lg md:text-2xl font-light text-gray-300 tracking-widest text-transition">
+                Di Ibadah Raya Hari Minggu
+            </p>
+        </div>
+
+        <!-- Pemisah Dekoratif -->
+        <div class="flex items-center space-x-4 my-10 opacity-50">
+            <div class="h-px w-16 bg-gradient-to-r from-transparent to-yellow-500"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.8)]"></div>
+            <div class="h-px w-16 bg-gradient-to-l from-transparent to-yellow-500"></div>
+        </div>
+
+        <!-- Indikator Status -->
+        <div class="glass-panel px-8 py-3 rounded-full animate-pulse-slow">
+            <p class="text-xs md:text-sm font-medium tracking-[0.3em] uppercase text-yellow-100/80">
+                Ibadah Akan Segera Dimulai
+            </p>
+        </div>
+        
+        <!-- Pesan Ajakan di Bawah -->
+        <div class="absolute bottom-12 w-full text-center">
+            <p class="text-xs md:text-sm font-light text-gray-500 tracking-wider">
+                Silakan mengambil tempat duduk dan bersaat teduh
+            </p>
+        </div>
+    </div>
+
+    <!-- Skrip untuk Animasi -->
+    <script>
+        // --- 1. Logika Rotasi Teks ---
+        const messages = [
+            { title: "Selamat Datang", sub: "Di Ibadah Raya Hari Minggu" },
+            { title: "Shalom", sub: "Damai Sejahtera Menyertai Anda" },
+            { title: "Welcome", sub: "We Are Glad You Are Here" },
+            { title: "Mari Menyembah", sub: "Siapkan Hati Untuk Hadirat-Nya" }
+        ];
+
+        let currentIndex = 0;
+        const mainTitle = document.getElementById('mainTitle');
+        const subTitle = document.getElementById('subTitle');
+
+        function changeText() {
+            // Animasi Fade Out
+            mainTitle.classList.add('text-hidden');
+            subTitle.classList.add('text-hidden');
+
+            setTimeout(() => {
+                // Ganti Teks setelah Fade Out selesai
+                currentIndex = (currentIndex + 1) % messages.length;
+                mainTitle.innerText = messages[currentIndex].title;
+                subTitle.innerText = messages[currentIndex].sub;
+
+                // Animasi Fade In
+                mainTitle.classList.remove('text-hidden');
+                subTitle.classList.remove('text-hidden');
+            }, 1500); // Waktu transisi harus sama dengan CSS (1.5s)
+        }
+
+        // Jalankan rotasi teks setiap 8 detik
+        setInterval(changeText, 8000);
+
+
+        // --- 2. Logika Animasi Partikel Cahaya (Canvas) ---
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let particlesArray = [];
+        let w, h;
+
+        function initCanvas() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', () => {
+            initCanvas();
+            initParticles();
+        });
+
+        // Konstruktor Partikel
+        class Particle {
+            constructor() {
+                this.x = Math.random() * w;
+                this.y = Math.random() * h;
+                this.size = Math.random() * 2 + 0.5; // Ukuran bervariasi (0.5 - 2.5)
+                this.speedY = Math.random() * 0.3 + 0.1; // Kecepatan melayang ke atas
+                this.speedX = (Math.random() - 0.5) * 0.2; // Sedikit pergerakan ke samping
+                
+                // Warna kuning keemasan yang lembut
+                const colors = ['rgba(253, 224, 71, ', 'rgba(255, 255, 255, ', 'rgba(250, 204, 21, '];
+                this.colorBase = colors[Math.floor(Math.random() * colors.length)];
+                
+                this.opacity = Math.random() * 0.5;
+                this.fadeSpeed = Math.random() * 0.005 + 0.001;
+                this.fadeDirection = Math.random() > 0.5 ? 1 : -1;
+            }
+
+            update() {
+                // Pergerakan partikel (Melayang lambat seperti debu cahaya)
+                this.y -= this.speedY;
+                this.x += this.speedX;
+
+                // Logika Fade in / Fade out
+                this.opacity += this.fadeSpeed * this.fadeDirection;
+                if (this.opacity >= 0.6) this.fadeDirection = -1;
+                if (this.opacity <= 0) {
+                    this.fadeDirection = 1;
+                    // Jika partikel benar-benar hilang atau melewati batas layar, reset posisinya ke bawah
+                    if (this.y < 0) {
+                        this.y = h;
+                        this.x = Math.random() * w;
+                    }
+                }
+
+                // Cek batas layar (samping)
+                if (this.x > w || this.x < 0) {
+                    this.speedX *= -1;
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.colorBase + Math.max(0, this.opacity) + ')';
+                
+                // Efek cahaya (Glow)
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.colorBase + '1)';
+                
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            // Jumlah partikel disesuaikan dengan lebar layar
+            const numberOfParticles = Math.floor((w * h) / 15000); 
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            // Membersihkan canvas dengan sedikit opasitas untuk efek jejak (trail) yang sangat halus
+            ctx.clearRect(0, 0, w, h);
+            
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        // Inisialisasi dan jalankan
+        initCanvas();
+        initParticles();
+        animateParticles();
+    </script>
+</body>
+</html>
