@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sambutan Ibadah - Versi Urban Kontemporer</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Syncopate (Futuristik/Lebar) & Space Grotesk (Modern/Urban) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050505; /* Hitam pekat */
+            color: #ffffff;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .font-syncopate {
+            font-family: 'Syncopate', sans-serif;
+        }
+
+        /* Latar Belakang Grid Bergerak (Urban Style) */
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            animation: moveGrid 20s linear infinite;
+            z-index: 0;
+            transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+            transform-origin: top;
+            height: 200%; /* Memperpanjang grid agar tidak terpotong saat dianimasi */
+        }
+
+        @keyframes moveGrid {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-200px); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(50px) translateZ(-200px); }
+        }
+
+        /* Efek Teks Glitch Sederhana / Marquee */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: absolute;
+            width: 100%;
+            z-index: 1;
+            opacity: 0.1; /* Sangat transparan sebagai background */
+        }
+        
+        .marquee-text {
+            display: inline-block;
+            font-size: 15vw; /* Super raksasa */
+            font-weight: 700;
+            text-transform: uppercase;
+            animation: scrollText 30s linear infinite;
+            line-height: 1;
+        }
+
+        @keyframes scrollText {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Outline Text Effect */
+        .text-outline {
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(255,255,255,0.8);
+        }
+
+        /* Garis Pemindai (Scanner Line) */
+        .scanner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.2);
+            animation: scanScreen 8s ease-in-out infinite;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        @keyframes scanScreen {
+            0%, 100% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            50% { top: 100%; opacity: 0.5; }
+        }
+
+        /* Efek Mesin Tik (Typing Effect) untuk teks dinamis */
+        .typing-cursor::after {
+            content: '█';
+            animation: blinkCursor 1s step-end infinite;
+            margin-left: 4px;
+        }
+
+        @keyframes blinkCursor {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="relative h-screen w-screen flex flex-col justify-between overflow-hidden p-6 md:p-12">
+
+    <!-- Efek Garis Scanner -->
+    <div class="scanner"></div>
+
+    <!-- Background Grid -->
+    <div class="absolute inset-0 z-0 bg-gradient-to-b from-black via-transparent to-black"></div>
+    <div class="grid-bg"></div>
+
+    <!-- Teks Marquee Raksasa di Latar Belakang -->
+    <div class="marquee-container top-1/4 -translate-y-1/2 font-syncopate">
+        <div class="marquee-text text-outline">
+            WORSHIP • PRAISE • ENCOUNTER • WORSHIP • PRAISE • ENCOUNTER • WORSHIP • PRAISE • ENCOUNTER •
+        </div>
+    </div>
+
+    <!-- HEADER: Kiri Atas -->
+    <div class="relative z-10 flex justify-between items-start w-full">
+        <div class="flex flex-col">
+            <div class="font-syncopate text-xs md:text-sm font-bold tracking-[0.3em] uppercase text-white/50 mb-2">
+                SYS.READY //
+            </div>
+            <div class="w-12 h-1 bg-white mb-1"></div>
+            <div class="w-8 h-1 bg-white/40"></div>
+        </div>
+        
+        <!-- Jam Digital Kotak (Kanan Atas) -->
+        <div class="border border-white/20 p-2 md:p-3 bg-black/50 backdrop-blur-sm flex flex-col items-end">
+            <span id="digitalTime" class="text-xl md:text-3xl font-bold tracking-widest leading-none">00:00:00</span>
+            <span class="text-[10px] md:text-xs text-white/40 font-syncopate tracking-[0.2em] mt-1">LOKAL_WAKTU</span>
+        </div>
+    </div>
+
+    <!-- KONTEN UTAMA: Tengah Kiri (Asimetris) -->
+    <div class="relative z-20 w-full max-w-4xl self-start mt-auto mb-auto">
+        <!-- Badge -->
+        <div class="inline-block border border-white/30 px-3 py-1 mb-6 text-xs md:text-sm font-syncopate tracking-widest text-white/70">
+            IBADAH YOUTH & KONTEMPORER
+        </div>
+
+        <!-- Teks Utama yang akan di-animasikan dengan JavaScript -->
+        <h1 class="text-4xl md:text-7xl lg:text-8xl font-bold uppercase leading-none tracking-tight mb-4">
+            <span id="mainDynamicText" class="typing-cursor">AWAKEN_</span>
+        </h1>
+        
+        <p class="text-sm md:text-xl text-white/60 font-light max-w-xl border-l-2 border-white/40 pl-4 mt-6">
+            Menyatukan generasi untuk mengalami perjumpaan yang otentik dengan Tuhan. Silakan bersiap, kita mulai sebentar lagi.
+        </p>
+    </div>
+
+    <!-- FOOTER: Bawah Kanan -->
+    <div class="relative z-10 flex justify-end w-full">
+        <div class="flex items-center space-x-4">
+            <div class="text-right">
+                <div class="text-xs text-white/40 font-syncopate tracking-[0.3em]">STATUS</div>
+                <div id="countdownStatus" class="text-sm md:text-base font-bold text-green-400">MEMUAT_AUDIO...</div>
+            </div>
+            <!-- Elemen Dekoratif Equalizer Palsu -->
+            <div class="flex items-end space-x-1 h-8">
+                <div class="w-1.5 bg-white/30 h-1/4 animate-[bounce_1s_ease-in-out_infinite]"></div>
+                <div class="w-1.5 bg-white/50 h-3/4 animate-[bounce_1.2s_ease-in-out_infinite_0.1s]"></div>
+                <div class="w-1.5 bg-white/80 h-1/2 animate-[bounce_0.8s_ease-in-out_infinite_0.2s]"></div>
+                <div class="w-1.5 bg-white h-full animate-[bounce_1.5s_ease-in-out_infinite_0.3s]"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skrip untuk Animasi -->
+    <script>
+        // 1. Logika Jam Digital
+        function updateDigitalClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('digitalTime').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateDigitalClock, 1000);
+        updateDigitalClock();
+
+        // 2. Efek Typing / Hapus Teks Utama
+        const words = ["AWAKEN_", "ENCOUNTER_", "WORSHIP_", "REVIVAL_", "PREPARE_"];
+        let wordIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const mainTextElement = document.getElementById('mainDynamicText');
+
+        function typeEffect() {
+            const currentWord = words[wordIndex];
+            
+            if (isDeleting) {
+                // Menghapus karakter
+                charIndex--;
+            } else {
+                // Mengetik karakter
+                charIndex++;
+            }
+
+            mainTextElement.textContent = currentWord.substring(0, charIndex);
+
+            let typeSpeed = isDeleting ? 50 : 150; // Kecepatan hapus vs ketik
+
+            if (!isDeleting && charIndex === currentWord.length) {
+                // Jeda setelah kata selesai diketik
+                typeSpeed = 3000;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                wordIndex = (wordIndex + 1) % words.length;
+                typeSpeed = 500; // Jeda sebelum mengetik kata baru
+            }
+
+            setTimeout(typeEffect, typeSpeed);
+        }
+        
+        // Mulai efek ketik
+        setTimeout(typeEffect, 1000);
+
+        // 3. Rotasi Status (Pojok Kanan Bawah)
+        const statuses = ["MEMUAT_INSTRUMEN...", "SINKRONISASI...", "PERSIAPAN_HATI", "STAND_BY", "MULAI_SEGERA"];
+        let statusIndex = 0;
+        const statusElement = document.getElementById('countdownStatus');
+
+        setInterval(() => {
+            statusIndex = (statusIndex + 1) % statuses.length;
+            statusElement.textContent = statuses[statusIndex];
+            
+            // Beri warna berbeda jika "MULAI_SEGERA"
+            if (statuses[statusIndex] === "MULAI_SEGERA") {
+                statusElement.classList.replace("text-green-400", "text-red-500");
+                statusElement.classList.add("animate-pulse");
+            } else {
+                statusElement.classList.replace("text-red-500", "text-green-400");
+                statusElement.classList.remove("animate-pulse");
+            }
+        }, 5000);
+
+    </script>
+</body>
+</html>
