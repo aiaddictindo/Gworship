@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sambutan Ibadah - Versi Sunrise Bokeh</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Lora (Elegan/Klasik) & Lato (Bersih/Modern) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0c0a09; /* Warna dasar sangat gelap (Stone 900) */
+            font-family: 'Lato', sans-serif;
+        }
+
+        .font-serif {
+            font-family: 'Lora', serif;
+        }
+
+        /* Latar Belakang Gradien Fajar/Sunrise */
+        .bg-sunrise {
+            background: radial-gradient(circle at bottom center, rgba(120, 53, 15, 0.4) 0%, rgba(12, 10, 9, 1) 70%);
+        }
+
+        /* Animasi Transisi Teks */
+        .text-fade {
+            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .text-fade-out {
+            opacity: 0;
+            transform: scale(0.98);
+        }
+
+        /* Animasi Putaran Sangat Lambat untuk Cincin */
+        .animate-spin-slow {
+            animation: spin 20s linear infinite;
+        }
+        
+        .animate-spin-reverse-slower {
+            animation: spin-reverse 30s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+
+        /* Garis Cahaya di Bawah */
+        .glow-line {
+            box-shadow: 0 0 20px 2px rgba(245, 158, 11, 0.5);
+        }
+    </style>
+</head>
+<body class="relative h-screen w-screen flex flex-col items-center justify-center text-white">
+
+    <!-- Latar Belakang Radial Sunrise -->
+    <div class="absolute inset-0 z-0 bg-sunrise"></div>
+
+    <!-- Canvas untuk Efek Floating Bokeh -->
+    <canvas id="bokehCanvas" class="absolute inset-0 z-10 w-full h-full"></canvas>
+
+    <!-- Header Kecil (Atas) -->
+    <div class="absolute top-10 w-full text-center z-20">
+        <p class="text-orange-200/60 tracking-[0.4em] text-xs uppercase font-semibold">
+            Gereja Anda · Ibadah Raya
+        </p>
+    </div>
+
+    <!-- Konten Utama (Tengah) -->
+    <div class="relative z-20 flex flex-col items-center justify-center w-full max-w-3xl mt-8">
+        
+        <!-- Ornamen Cincin & Salib Tengah -->
+        <div class="relative w-40 h-40 md:w-48 md:h-48 flex items-center justify-center mb-10">
+            <!-- Cincin Luar (Putar Kanan) -->
+            <div class="absolute inset-0 rounded-full border border-orange-900/50"></div>
+            <div class="absolute inset-0 rounded-full border-t-2 border-l-2 border-orange-400/60 animate-spin-slow"></div>
+            
+            <!-- Cincin Dalam (Putar Kiri) -->
+            <div class="absolute inset-3 rounded-full border-b border-r border-orange-300/40 animate-spin-reverse-slower"></div>
+            
+            <!-- Ikon Salib di Tengah -->
+            <div class="z-10 text-orange-200 opacity-80 shadow-orange-500/50 drop-shadow-[0_0_15px_rgba(251,146,60,0.5)]">
+                <svg width="40" height="60" viewBox="0 0 40 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="18" y="0" width="4" height="60" rx="2" fill="currentColor"/>
+                    <rect x="0" y="16" width="40" height="4" rx="2" fill="currentColor"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Teks Pengumuman/Persiapan Berputar -->
+        <div class="h-32 md:h-40 flex flex-col items-center justify-start text-center w-full px-6">
+            <h1 id="prepTitle" class="font-serif text-3xl md:text-5xl text-orange-50 font-medium mb-4 text-fade">
+                Saat Teduh
+            </h1>
+            <p id="prepDesc" class="text-base md:text-xl text-orange-200/80 font-light tracking-wide text-fade max-w-2xl">
+                Mari tenangkan hati dan pikiran kita di hadapan Tuhan.
+            </p>
+        </div>
+
+        <!-- Garis Pemisah Bercahaya -->
+        <div class="w-1/3 h-px bg-gradient-to-r from-transparent via-orange-500 to-transparent glow-line mt-8 mb-8 opacity-70"></div>
+
+    </div>
+
+    <!-- Footer Jam & Info -->
+    <div class="absolute bottom-10 w-full flex flex-col items-center justify-center z-20">
+        <div id="liveTime" class="text-2xl md:text-3xl font-light text-orange-100 tracking-widest mb-1">
+            00:00
+        </div>
+        <p class="text-xs text-orange-200/50 tracking-[0.2em] uppercase">
+            Waktu Setempat
+        </p>
+    </div>
+
+    <!-- Skrip untuk Animasi -->
+    <script>
+        // --- 1. Logika Jam Real-time ---
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('liveTime').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateTime, 1000);
+        updateTime(); // Inisialisasi awal
+
+        // --- 2. Logika Rotasi Pesan Persiapan ---
+        const preparations = [
+            { title: "Saat Teduh", desc: "Mari tenangkan hati dan pikiran kita di hadapan Tuhan." },
+            { title: "Mohon Perhatian", desc: "Silakan ubah ponsel Anda ke mode senyap (silent) agar ibadah berjalan khidmat." },
+            { title: "Persiapan Hati", desc: "\"Berdiam dirilah di hadapan TUHAN dan nantikanlah Dia.\" - Mazmur 37:7a" },
+            { title: "Selamat Beribadah", desc: "Kami bersukacita Anda hadir bersama kami hari ini." }
+        ];
+
+        let msgIndex = 0;
+        const prepTitle = document.getElementById('prepTitle');
+        const prepDesc = document.getElementById('prepDesc');
+
+        function rotateMessages() {
+            // Memulai efek menghilang (Fade out & shrink)
+            prepTitle.classList.add('text-fade-out');
+            prepDesc.classList.add('text-fade-out');
+
+            setTimeout(() => {
+                // Mengganti konten setelah teks menghilang
+                msgIndex = (msgIndex + 1) % preparations.length;
+                prepTitle.innerText = preparations[msgIndex].title;
+                prepDesc.innerText = preparations[msgIndex].desc;
+
+                // Memulai efek muncul kembali (Fade in & scale normal)
+                prepTitle.classList.remove('text-fade-out');
+                prepDesc.classList.remove('text-fade-out');
+            }, 1500); // Sinkron dengan durasi transisi CSS
+        }
+
+        // Ganti pesan setiap 10 detik
+        setInterval(rotateMessages, 10000);
+
+
+        // --- 3. Logika Animasi Floating Bokeh (Canvas) ---
+        const canvas = document.getElementById('bokehCanvas');
+        const ctx = canvas.getContext('2d');
+        let bokehArray = [];
+        let w, h;
+
+        function resizeCanvas() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Bokeh {
+            constructor() {
+                this.x = Math.random() * w;
+                // Partikel mulai dari bawah layar
+                this.y = h + Math.random() * 300; 
+                this.radius = Math.random() * 40 + 10; // Ukuran bervariasi (besar-besar)
+                this.speedY = Math.random() * 0.5 + 0.2; // Bergerak sangat lambat ke atas
+                this.speedX = (Math.random() - 0.5) * 0.3; // Sedikit goyangan ke kiri/kanan
+                
+                // Opasitas maksimal acak agar tidak semua terang
+                this.maxAlpha = Math.random() * 0.15 + 0.05; 
+                this.alpha = 0;
+                
+                // Warna bernuansa hangat (Emas/Oranye)
+                this.r = 251;
+                this.g = 146 + Math.floor(Math.random() * 50); // Variasi oranye ke kuning
+                this.b = 60;
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.x += this.speedX;
+
+                // Efek memudar perlahan saat naik
+                if (this.y < h * 0.8 && this.alpha < this.maxAlpha) {
+                    this.alpha += 0.001; // Fade in saat masuk layar
+                } else if (this.y < h * 0.3) {
+                    this.alpha -= 0.002; // Fade out saat mencapai sepertiga atas layar
+                }
+
+                // Reset partikel jika sudah lewat atas layar atau transparan
+                if (this.y < -100 || (this.y < h * 0.3 && this.alpha <= 0)) {
+                    this.y = h + 100;
+                    this.x = Math.random() * w;
+                    this.alpha = 0;
+                }
+            }
+
+            draw() {
+                // Menggunakan radial gradient untuk mensimulasikan efek blur/bokeh (lebih ringan dari CSS blur)
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                gradient.addColorStop(0, `rgba(${this.r}, ${this.g}, ${this.b}, ${this.alpha})`);
+                gradient.addColorStop(1, `rgba(${this.r}, ${this.g}, ${this.b}, 0)`);
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+        }
+
+        function initBokeh() {
+            bokehArray = [];
+            // Jumlah partikel tidak terlalu banyak agar elegan
+            const numBokeh = Math.floor((w * h) / 20000);
+            for (let i = 0; i < numBokeh; i++) {
+                bokehArray.push(new Bokeh());
+            }
+        }
+
+        function animateBokeh() {
+            // Bersihkan frame sebelumnya
+            ctx.clearRect(0, 0, w, h);
+            
+            for (let i = 0; i < bokehArray.length; i++) {
+                bokehArray[i].update();
+                bokehArray[i].draw();
+            }
+            requestAnimationFrame(animateBokeh);
+        }
+
+        initBokeh();
+        animateBokeh();
+    </script>
+</body>
+</html>
