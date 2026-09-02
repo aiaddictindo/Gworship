@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sambutan Ibadah - Versi Aurora</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Cinzel (Klasik/Megah) & Inter (Bersih/Modern) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Warna dasar fallback */
+        }
+
+        .font-cinzel {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Animasi Background Aurora / Mesh Gradient */
+        .ambient-bg {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                -45deg, 
+                #1e1b4b, /* Indigo sangat gelap */
+                #4c1d95, /* Ungu */
+                #2563eb, /* Biru */
+                #0f172a  /* Slate gelap */
+            );
+            background-size: 400% 400%;
+            animation: ambientMove 20s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        @keyframes ambientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Overlay gelap agar teks tetap terbaca */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+            z-index: 1;
+        }
+
+        /* Animasi Transisi Teks */
+        .fade-transition {
+            transition: opacity 2s ease-in-out, filter 2s ease-in-out;
+            opacity: 1;
+            filter: blur(0px);
+        }
+
+        .fade-hidden {
+            opacity: 0;
+            filter: blur(4px);
+        }
+
+        /* Animasi Salib di Latar Belakang */
+        .cross-bg {
+            animation: float-breathe 8s ease-in-out infinite;
+        }
+
+        @keyframes float-breathe {
+            0%, 100% { transform: scale(1) translateY(0); opacity: 0.1; }
+            50% { transform: scale(1.05) translateY(-10px); opacity: 0.2; }
+        }
+    </style>
+</head>
+<body class="relative h-screen w-screen flex items-center justify-center text-white">
+
+    <!-- Latar Belakang Aurora Bergerak -->
+    <div class="ambient-bg"></div>
+    <div class="overlay"></div>
+
+    <!-- Salib Raksasa Latar Belakang -->
+    <div class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+        <svg class="cross-bg w-[40vh] md:w-[60vh] text-white" viewBox="0 0 100 150" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <!-- Bentuk Salib Sederhana -->
+            <rect x="45" y="10" width="10" height="130" rx="2" />
+            <rect x="25" y="45" width="50" height="10" rx="2" />
+        </svg>
+    </div>
+
+    <!-- Jam di Kanan Atas -->
+    <div class="absolute top-8 right-8 z-30 text-right">
+        <div id="clockTime" class="text-3xl md:text-5xl font-light tracking-wider">00:00</div>
+        <div id="clockDate" class="text-sm md:text-base text-gray-300 tracking-widest uppercase mt-1">Hari, Tanggal</div>
+    </div>
+
+    <!-- Konten Utama (Tengah) -->
+    <div class="relative z-20 flex flex-col items-center justify-center text-center px-6 w-full max-w-4xl">
+        
+        <!-- Wadah Teks Berputar -->
+        <div class="min-h-[250px] md:min-h-[300px] flex flex-col items-center justify-center w-full">
+            <h2 id="verseText" class="font-cinzel text-3xl md:text-5xl lg:text-6xl leading-tight text-white drop-shadow-lg mb-6 fade-transition">
+                "Masuklah melalui pintu gerbang-Nya dengan nyanyian syukur, ke dalam pelataran-Nya dengan puji-pujian."
+            </h2>
+            <p id="verseRef" class="text-lg md:text-xl font-light text-blue-200 tracking-[0.2em] fade-transition">
+                MAZMUR 100:4
+            </p>
+        </div>
+
+        <div class="w-24 h-0.5 bg-gradient-to-r from-transparent via-white to-transparent my-8 opacity-40"></div>
+
+        <h1 class="text-xl md:text-2xl font-semibold tracking-widest text-white uppercase drop-shadow-md">
+            Selamat Datang di Ibadah
+        </h1>
+        <p class="text-sm md:text-base text-gray-300 mt-2 font-light tracking-wide">
+            Ibadah akan segera dimulai. Mari persiapkan hati kita.
+        </p>
+
+    </div>
+
+    <!-- Skrip untuk Animasi & Jam -->
+    <script>
+        // --- 1. Logika Jam Real-time ---
+        function updateClock() {
+            const now = new Date();
+            
+            // Format Waktu (HH:MM)
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clockTime').textContent = `${hours}:${minutes}`;
+
+            // Format Tanggal (Hari, DD Bulan YYYY)
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
+            const dayName = days[now.getDay()];
+            const day = now.getDate();
+            const monthName = months[now.getMonth()];
+            const year = now.getFullYear();
+            
+            document.getElementById('clockDate').textContent = `${dayName}, ${day} ${monthName} ${year}`;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock(); // Jalankan sekali saat load
+
+
+        // --- 2. Logika Rotasi Ayat Alkitab ---
+        const verses = [
+            { text: '"Masuklah melalui pintu gerbang-Nya dengan nyanyian syukur, ke dalam pelataran-Nya dengan puji-pujian."', ref: "MAZMUR 100:4" },
+            { text: '"Aku bersukacita, ketika orang berkata kepadaku: Mari kita pergi ke rumah TUHAN."', ref: "MAZMUR 122:1" },
+            { text: '"Tetapi TUHAN ada di dalam bait-Nya yang kudus. Berdiam dirilah di hadapan-Nya, ya segenap bumi!"', ref: "HABAKUK 2:20" },
+            { text: '"Sebab di mana dua atau tiga orang berkumpul dalam Nama-Ku, di situ Aku ada di tengah-tengah mereka."', ref: "MATIUS 18:20" },
+            { text: 'Selamat Datang', ref: "MARI MENYEMBAH DALAM ROH DAN KEBENARAN" }
+        ];
+
+        let currentIndex = 0;
+        const verseText = document.getElementById('verseText');
+        const verseRef = document.getElementById('verseRef');
+
+        function changeVerse() {
+            // Animasi Fade Out (termasuk efek blur)
+            verseText.classList.add('fade-hidden');
+            verseRef.classList.add('fade-hidden');
+
+            setTimeout(() => {
+                // Ganti Teks setelah Fade Out
+                currentIndex = (currentIndex + 1) % verses.length;
+                
+                // Menyesuaikan ukuran font jika teksnya "Selamat Datang" agar lebih besar
+                if(currentIndex === verses.length - 1) {
+                    verseText.classList.remove('text-3xl', 'md:text-5xl', 'lg:text-6xl');
+                    verseText.classList.add('text-5xl', 'md:text-7xl', 'lg:text-8xl');
+                } else {
+                    verseText.classList.add('text-3xl', 'md:text-5xl', 'lg:text-6xl');
+                    verseText.classList.remove('text-5xl', 'md:text-7xl', 'lg:text-8xl');
+                }
+
+                verseText.innerText = verses[currentIndex].text;
+                verseRef.innerText = verses[currentIndex].ref;
+
+                // Animasi Fade In
+                verseText.classList.remove('fade-hidden');
+                verseRef.classList.remove('fade-hidden');
+            }, 2000); // Waktu transisi 2 detik
+        }
+
+        // Jalankan rotasi teks setiap 12 detik (karena membaca ayat butuh waktu lebih lama)
+        setInterval(changeVerse, 12000);
+
+    </script>
+</body>
+</html>
