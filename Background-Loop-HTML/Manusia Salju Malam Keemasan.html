@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cute Chibi Snowman Golden Night Glory</title>
+    <style>
+        /* ========================================================
+           1. RESET & FULLSCREEN SETUP
+        ======================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            /* Langit Malam Gelap ke Emas Gelap (Kesan Glamor & Syahdu) */
+            background: linear-gradient(180deg, #070913 0%, #171221 40%, #3a2613 80%, #523a13 100%);
+            font-family: sans-serif;
+        }
+
+        /* ========================================================
+           2. ELEMEN LATAR BELAKANG (BINTANG & AURA KEEMASAN)
+        ======================================================== */
+        /* Lapisan Bintang Malam */
+        .stars-container {
+            position: absolute;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star-layer {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                radial-gradient(1.5px 1.5px at 15vw 20vh, #FFDF73, transparent),
+                radial-gradient(2px 2px at 35vw 45vh, #FFF, transparent),
+                radial-gradient(1px 1px at 55vw 10vh, #FFDF73, transparent),
+                radial-gradient(2px 2px at 75vw 60vh, #FFF, transparent),
+                radial-gradient(1.5px 1.5px at 85vw 25vh, #FFDF73, transparent),
+                radial-gradient(1px 1px at 95vw 80vh, #FFF, transparent),
+                radial-gradient(2px 2px at 10vw 70vh, #FFDF73, transparent);
+            opacity: 0.4;
+            animation: twinkle 4s infinite alternate ease-in-out;
+        }
+        
+        .star-layer:nth-child(2) {
+            transform: rotate(180deg);
+            animation-delay: -2s;
+            animation-duration: 6s;
+        }
+
+        @keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 0.8; } }
+
+        /* Aura Keemasan (Hadirat Tuhan / Divine Light) */
+        .divine-aura {
+            position: absolute;
+            bottom: 10vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60vw;
+            height: 60vw;
+            max-width: 600px;
+            max-height: 600px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.25) 0%, rgba(218, 165, 32, 0.1) 40%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(40px);
+            animation: pulse-aura 8s infinite alternate ease-in-out;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @keyframes pulse-aura {
+            0% { transform: translateX(-50%) scale(0.9); opacity: 0.7; }
+            100% { transform: translateX(-50%) scale(1.1); opacity: 1; }
+        }
+
+        /* ========================================================
+           3. TANAH SALJU KEEMASAN (GROUND)
+        ======================================================== */
+        .snow-ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100vw;
+            height: 30vh;
+            /* Salju yang memantulkan cahaya emas */
+            background: #2E2519; 
+            clip-path: ellipse(150% 100% at 50% 100%);
+            z-index: 3;
+            box-shadow: inset 0 30px 60px rgba(218, 165, 32, 0.15);
+        }
+
+        .snow-ground-back {
+            position: absolute;
+            bottom: 8vh;
+            left: -10vw;
+            width: 120vw;
+            height: 35vh;
+            background: #1F1913;
+            clip-path: ellipse(100% 100% at 70% 100%);
+            z-index: 2;
+        }
+
+        /* ========================================================
+           4. MANUSIA SALJU CHIBI & POHON (TEMA GLAMOR)
+        ======================================================== */
+        .scene-container {
+            position: absolute;
+            bottom: 6vh;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 4;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            width: 100vw;
+            pointer-events: none;
+        }
+
+        /* Pohon Bulat Siluet Gelap dengan Rim Light Emas */
+        .cute-tree {
+            width: 18vw;
+            max-width: 140px;
+            min-width: 90px;
+            margin: 0 1vw;
+            animation: sway-soft 6s ease-in-out infinite alternate;
+            transform-origin: bottom center;
+        }
+
+        .tree-left { filter: drop-shadow(0 15px 15px rgba(0, 0, 0, 0.6)); margin-right: 3vw; }
+        .tree-right { filter: drop-shadow(0 15px 15px rgba(0, 0, 0, 0.6)); animation-delay: -2s; margin-left: 3vw; }
+
+        @keyframes sway-soft {
+            0% { transform: rotate(-1.5deg); }
+            100% { transform: rotate(1.5deg); }
+        }
+
+        .snowman-wrapper {
+            width: 35vw;
+            max-width: 280px;
+            min-width: 180px;
+            filter: drop-shadow(0px 20px 20px rgba(0, 0, 0, 0.5));
+            animation: breathe-chibi 4s infinite alternate ease-in-out;
+            transform-origin: bottom center;
+            z-index: 5;
+        }
+
+        @keyframes breathe-chibi {
+            0% { transform: scale(1) scaleY(1) translateY(0); }
+            100% { transform: scale(1.01) scaleY(0.98) translateY(-3px); }
+        }
+
+        .bird-group {
+            animation: bird-hop 4s infinite ease-in-out;
+            transform-origin: 215px 105px; 
+        }
+
+        @keyframes bird-hop {
+            0%, 70% { transform: rotate(0deg) translateY(0); }
+            75% { transform: rotate(-10deg) translateY(-5px); } 
+            80% { transform: rotate(10deg) translateY(0); }
+            85% { transform: rotate(-5deg) translateY(-2px); }
+            90%, 100% { transform: rotate(0deg) translateY(0); }
+        }
+
+        .scarf-tail {
+            animation: wind-blow 3s infinite alternate ease-in-out;
+            transform-origin: 150px 120px;
+        }
+
+        @keyframes wind-blow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(8deg); }
+        }
+
+        /* ========================================================
+           5. CANVAS PARTIKEL (DEBU EMAS)
+        ======================================================== */
+        #snowCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        @media (max-aspect-ratio: 3/4) {
+            .cute-tree { width: 30vw; }
+            .snowman-wrapper { width: 55vw; }
+            .divine-aura { width: 90vw; height: 90vw; bottom: 15vh; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Latar Bintang Malam -->
+    <div class="stars-container">
+        <div class="star-layer"></div>
+        <div class="star-layer"></div>
+    </div>
+
+    <!-- Cahaya Keemasan (Hadirat) -->
+    <div class="divine-aura"></div>
+
+    <!-- Bukit Malam Keemasan -->
+    <div class="snow-ground-back"></div>
+    <div class="snow-ground"></div>
+
+    <!-- Container Utama -->
+    <div class="scene-container">
+        
+        <!-- Pohon Bulat Kiri (Siluet Gelap dgn Cahaya Emas) -->
+        <svg class="cute-tree tree-left" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
+            <rect x="45" y="110" width="10" height="40" fill="#1A120B" rx="3"/>
+            <!-- Daun siluet gelap dengan sentuhan emas di tepinya -->
+            <circle cx="50" cy="90" r="30" fill="#1C1814" stroke="#5C4A21" stroke-width="1.5" />
+            <circle cx="35" cy="65" r="25" fill="#241E18" stroke="#5C4A21" stroke-width="1.5" />
+            <circle cx="65" cy="65" r="25" fill="#241E18" stroke="#5C4A21" stroke-width="1.5" />
+            <circle cx="50" cy="40" r="25" fill="#2D251D" stroke="#7A632D" stroke-width="1.5" />
+            <path d="M 25 40 Q 50 10 75 40 Q 50 50 25 40 Z" fill="rgba(218, 165, 32, 0.15)"/>
+        </svg>
+
+        <!-- Manusia Salju CHIBI -->
+        <div class="snowman-wrapper">
+            <svg viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
+                <!-- Gradasi Salju Malam Keemasan -->
+                <defs>
+                    <radialGradient id="snowGradGold" cx="40%" cy="30%" r="70%">
+                        <stop offset="0%" stop-color="#FFFDF5" /> <!-- Cahaya terpantul -->
+                        <stop offset="60%" stop-color="#D4C4A8" /> <!-- Bayangan emas lembut -->
+                        <stop offset="100%" stop-color="#736049" /> <!-- Gelap malam -->
+                    </radialGradient>
+                </defs>
+
+                <!-- Badan Pendek -->
+                <circle cx="125" cy="180" r="60" fill="url(#snowGradGold)" />
+                <!-- Kepala Besar -->
+                <circle cx="125" cy="95" r="50" fill="url(#snowGradGold)" />
+
+                <!-- Earmuff (Warna Merah Maroon Elegan) -->
+                <path d="M 75 95 C 75 35, 175 35, 175 95" fill="none" stroke="#2B1A1A" stroke-width="5" />
+                <circle cx="70" cy="95" r="15" fill="#5E1A22" />
+                <circle cx="180" cy="95" r="15" fill="#5E1A22" />
+
+                <!-- Wajah Senyum ^ ^ -->
+                <path d="M 105 85 Q 112 78 119 85" fill="none" stroke="#2A1B1B" stroke-width="3" stroke-linecap="round" />
+                <path d="M 131 85 Q 138 78 145 85" fill="none" stroke="#2A1B1B" stroke-width="3" stroke-linecap="round" />
+                
+                <!-- Pipi Merona Halus -->
+                <ellipse cx="98" cy="95" rx="9" ry="4" fill="#C97A7E" opacity="0.6" />
+                <ellipse cx="152" cy="95" rx="9" ry="4" fill="#C97A7E" opacity="0.6" />
+
+                <!-- Hidung Wortel (Emas Gelap) -->
+                <polygon points="120,93 135,98 120,103" fill="#D27D2D" />
+
+                <!-- Syal Glamor (Merah Maroon Tua & Strip Emas) -->
+                <path d="M 85 135 Q 125 150 165 135 Q 170 125 160 120 Q 125 130 90 120 Z" fill="#5E1A22" />
+                <!-- Strip Emas di Syal Leher -->
+                <path d="M 95 122 Q 100 135 105 138 L 115 130 Q 110 125 105 125 Z" fill="#DAA520" />
+                <path d="M 135 130 Q 140 142 145 138 L 155 125 Q 150 122 145 122 Z" fill="#DAA520" />
+
+                <g class="scarf-tail">
+                    <path d="M 145 130 L 155 180 L 135 185 Z" fill="#4A131A" />
+                    <!-- Strip emas di ekor syal -->
+                    <polygon points="143,150 151,148 152,153 141,155" fill="#DAA520" />
+                    <polygon points="138,170 148,168 149,173 137,175" fill="#DAA520" />
+                    <!-- Rumbai -->
+                    <line x1="135" y1="185" x2="135" y2="192" stroke="#5E1A22" stroke-width="2" />
+                    <line x1="145" y1="183" x2="145" y2="190" stroke="#5E1A22" stroke-width="2" />
+                    <line x1="155" y1="180" x2="155" y2="187" stroke="#5E1A22" stroke-width="2" />
+                </g>
+
+                <!-- Tangan -->
+                <path d="M 67 150 Q 40 130 20 140" stroke="#3A2514" stroke-width="4" fill="none" stroke-linecap="round" />
+                <path d="M 40 138 Q 30 125 25 125" stroke="#3A2514" stroke-width="3" fill="none" stroke-linecap="round" />
+
+                <path d="M 183 150 Q 210 120 230 125" stroke="#3A2514" stroke-width="4" fill="none" stroke-linecap="round" />
+                <path d="M 205 132 Q 215 120 225 115" stroke="#3A2514" stroke-width="3" fill="none" stroke-linecap="round" />
+
+                <!-- Burung Merpati Kecil (Bercahaya Emas) -->
+                <g class="bird-group">
+                    <ellipse cx="215" cy="115" rx="14" ry="11" fill="#FFDF73" />
+                    <polygon points="204,115 188,110 193,125" fill="#DAA520" />
+                    <ellipse cx="220" cy="119" rx="8" ry="5" fill="#FFF8E7" />
+                    <polygon points="228,113 238,115 228,117" fill="#D27D2D" />
+                    <path d="M 221 110 Q 223 108 225 110" fill="none" stroke="#3A2514" stroke-width="1.5" stroke-linecap="round" />
+                </g>
+                
+                <!-- Kancing Baju (Emas Klasik) -->
+                <circle cx="125" cy="155" r="4.5" fill="#DAA520" />
+                <circle cx="125" cy="175" r="4.5" fill="#DAA520" />
+                <circle cx="125" cy="195" r="4.5" fill="#DAA520" />
+            </svg>
+        </div>
+
+        <!-- Pohon Bulat Kanan -->
+        <svg class="cute-tree tree-right" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
+            <rect x="45" y="110" width="10" height="40" fill="#1A120B" rx="3"/>
+            <circle cx="50" cy="90" r="30" fill="#1C1814" stroke="#5C4A21" stroke-width="1.5" />
+            <circle cx="35" cy="65" r="25" fill="#241E18" stroke="#5C4A21" stroke-width="1.5" />
+            <circle cx="65" cy="65" r="25" fill="#241E18" stroke="#5C4A21" stroke-width="1.5" />
+            <circle cx="50" cy="40" r="25" fill="#2D251D" stroke="#7A632D" stroke-width="1.5" />
+            <path d="M 25 40 Q 50 10 75 40 Q 50 50 25 40 Z" fill="rgba(218, 165, 32, 0.15)"/>
+        </svg>
+
+    </div>
+
+    <!-- Kanvas Debu Emas -->
+    <canvas id="snowCanvas"></canvas>
+
+    <script>
+        /* ========================================================
+           6. JAVASCRIPT: PARTIKEL DENGAN THROTTLE 30 FPS
+        ======================================================== */
+        const canvas = document.getElementById('snowCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+        let particleCount = 70; // Partikel lebih sedikit, lebih elegan
+
+        // Variabel untuk mengunci FPS di 30 FPS (HEMAT RAM/CPU)
+        const fps = 30;
+        const interval = 1000 / fps;
+        let lastTime = 0;
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            
+            particleCount = Math.floor((width * height) / 14000);
+            if (particleCount > 150) particleCount = 150; 
+            
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 2.5 + 1,
+                    speed: Math.random() * 1 + 0.3, // Sangat lambat & syahdu
+                    wind: Math.random() * 0.3 - 0.15,
+                    // Warna partikel campuran: Putih dan Emas
+                    isGold: Math.random() > 0.5,
+                    opacity: Math.random() * 0.6 + 0.2
+                });
+            }
+        }
+
+        function animateSnow(timestamp) {
+            // Minta frame selanjutnya segera
+            requestAnimationFrame(animateSnow);
+
+            // Logika Pembatasan Frame (Delta Time) -> Maksimal 30 FPS
+            if (!lastTime) lastTime = timestamp;
+            const delta = timestamp - lastTime;
+
+            // Hanya eksekusi render jika jeda waktu sudah mencapai interval (33.3ms)
+            if (delta >= interval) {
+                lastTime = timestamp - (delta % interval);
+
+                // Bersihkan kanvas
+                ctx.clearRect(0, 0, width, height);
+                
+                // Render partikel Emas
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
+                ctx.beginPath();
+                for (let i = 0; i < particleCount; i++) {
+                    let p = particles[i];
+                    if(p.isGold) {
+                        ctx.moveTo(p.x, p.y);
+                        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2, true);
+                        updateParticle(p);
+                    }
+                }
+                ctx.fill();
+
+                // Render partikel Putih
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.beginPath();
+                for (let i = 0; i < particleCount; i++) {
+                    let p = particles[i];
+                    if(!p.isGold) {
+                        ctx.moveTo(p.x, p.y);
+                        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2, true);
+                        updateParticle(p);
+                    }
+                }
+                ctx.fill();
+            }
+        }
+
+        // Fungsi bantu untuk memperbarui posisi
+        function updateParticle(p) {
+            p.y += p.speed;
+            p.x += p.wind;
+            
+            if (p.y > height) {
+                p.y = -5;
+                p.x = Math.random() * width;
+            }
+            if (p.x > width) p.x = 0;
+            if (p.x < 0) p.x = width;
+        }
+
+        initCanvas();
+        requestAnimationFrame(animateSnow);
+
+        window.addEventListener('resize', () => {
+            initCanvas();
+        });
+    </script>
+</body>
+</html>
