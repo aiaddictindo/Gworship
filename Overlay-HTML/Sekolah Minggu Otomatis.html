@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ibadah Sekolah Minggu</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Baloo 2 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #A7F3D0 0%, #D9F99D 100%); 
+            font-family: 'Baloo 2', cursive;
+            color: #374151;
+        }
+
+        /* --- DEKORASI ALAM --- */
+        .sunburst {
+            position: absolute;
+            top: -20vh;
+            left: -20vh;
+            width: 80vh;
+            height: 80vh;
+            background: radial-gradient(circle, rgba(253,224,71,0.8) 0%, rgba(253,224,71,0) 70%);
+            animation: pulseSun 8s infinite alternate ease-in-out;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes pulseSun {
+            0% { transform: scale(1); opacity: 0.7; }
+            100% { transform: scale(1.2); opacity: 1; }
+        }
+
+        .bush {
+            position: absolute;
+            bottom: -20px;
+            background: #22C55E;
+            border-radius: 50% 50% 0 0;
+            z-index: 5;
+        }
+        
+        .bush-light { background: #4ADE80; }
+        .bush-dark { background: #16A34A; }
+
+        /* --- ANIMASI OBJEK MENGAMBANG --- */
+        .float-slow {
+            animation: floatSlow 4s ease-in-out infinite alternate;
+        }
+        .float-fast {
+            animation: floatFast 3s ease-in-out infinite alternate-reverse;
+        }
+        .wiggle {
+            animation: wiggle 5s ease-in-out infinite;
+        }
+
+        @keyframes floatSlow {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-15px); }
+        }
+        @keyframes floatFast {
+            0% { transform: translateY(0) rotate(-2deg); }
+            100% { transform: translateY(-20px) rotate(2deg); }
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+
+        /* --- ANIMASI TEKS --- */
+        .text-transition {
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+        .text-hidden {
+            opacity: 0;
+            transform: scale(0.8) translateY(20px);
+            transition: all 0.4s ease-in;
+        }
+
+        .title-stroke {
+            color: #FFFFFF;
+            -webkit-text-stroke: 3px #F59E0B;
+            text-shadow: 4px 4px 0 #D97706;
+        }
+
+        /* --- GELEMBUNG --- */
+        .bubbles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .bubble {
+            position: absolute;
+            bottom: -50px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: flyUp 10s linear infinite;
+        }
+        
+        .bubble:nth-child(1) { width: 40px; height: 40px; left: 10%; animation-duration: 8s; animation-delay: 0s; }
+        .bubble:nth-child(2) { width: 20px; height: 20px; left: 30%; animation-duration: 5s; animation-delay: 2s; }
+        .bubble:nth-child(3) { width: 60px; height: 60px; left: 50%; animation-duration: 12s; animation-delay: 1s; }
+        .bubble:nth-child(4) { width: 30px; height: 30px; left: 70%; animation-duration: 7s; animation-delay: 4s; }
+        .bubble:nth-child(5) { width: 50px; height: 50px; left: 85%; animation-duration: 9s; animation-delay: 3s; }
+
+        @keyframes flyUp {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-120vh) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="relative h-screen w-screen flex flex-col items-center justify-center">
+
+    <!-- Efek Cahaya Matahari -->
+    <div class="sunburst"></div>
+
+    <!-- Gelembung Latar -->
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <!-- Semak-semak Bawah -->
+    <div class="bush bush-dark w-[40vw] h-[15vh] left-[-10vw]"></div>
+    <div class="bush bush-light w-[60vw] h-[20vh] right-[-10vw] bottom-[-5vh]"></div>
+    <div class="bush bush-dark w-[30vw] h-[12vh] left-[40vw]"></div>
+    
+    <!-- Burung Kiri Atas -->
+    <div class="absolute top-[15%] left-[10%] float-fast z-10 w-24 h-24 md:w-32 md:h-32">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#60A5FA">
+                <circle cx="50" cy="50" r="30"/>
+                <circle cx="35" cy="40" r="20"/>
+                <path d="M70 50 Q 90 40 95 60 Q 70 70 70 50" fill="#3B82F6"/>
+                <path d="M40 65 Q 20 80 10 60 Q 30 50 40 65" fill="#3B82F6"/>
+            </g>
+            <circle cx="28" cy="35" r="4" fill="#1F2937"/>
+            <polygon points="15,40 22,38 22,42" fill="#F59E0B"/>
+        </svg>
+    </div>
+
+    <!-- Kupu-kupu Kanan Atas -->
+    <div class="absolute top-[20%] right-[15%] wiggle z-10 w-20 h-20 md:w-28 md:h-28">
+         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="50" cy="50" rx="6" ry="25" fill="#4B5563"/>
+            <path d="M45 40 Q 10 10 20 45 Q 40 50 45 40" fill="#F472B6"/>
+            <path d="M45 60 Q 15 90 25 65 Q 40 55 45 60" fill="#F9A8D4"/>
+            <path d="M55 40 Q 90 10 80 45 Q 60 50 55 40" fill="#F472B6"/>
+            <path d="M55 60 Q 85 90 75 65 Q 60 55 55 60" fill="#F9A8D4"/>
+            <path d="M47 25 Q 40 10 45 5" stroke="#4B5563" stroke-width="2" fill="none"/>
+            <path d="M53 25 Q 60 10 55 5" stroke="#4B5563" stroke-width="2" fill="none"/>
+        </svg>
+    </div>
+
+    <!-- KONTEN UTAMA -->
+    <div class="relative z-20 flex flex-col items-center justify-center text-center px-4 w-full max-w-3xl">
+        
+        <div class="bg-white/90 rounded-full px-6 py-2 mb-6 shadow-md border-2 border-green-200">
+            <span class="text-green-600 font-bold text-lg md:text-xl tracking-wide uppercase">
+                Ibadah Anak Sekolah Minggu
+            </span>
+        </div>
+
+        <div class="min-h-[200px] md:min-h-[250px] flex flex-col items-center justify-center w-full">
+            <h1 id="mainTitle" class="title-stroke text-5xl md:text-7xl lg:text-8xl font-extrabold mb-4 text-transition">
+                Hai Adik-Adik!
+            </h1>
+            
+            <p id="subTitle" class="text-2xl md:text-4xl font-bold text-teal-700 mt-2 text-transition drop-shadow-sm">
+                Selamat Datang di Gereja
+            </p>
+        </div>
+    </div>
+
+    <!-- Skrip dijamin berjalan setelah DOM siap -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const pesanSekolahMinggu = [
+                { judul: "Hai Adik-Adik!", sub: "Selamat Datang di Gereja" },
+                { judul: "Sudah Siap?", sub: "Yuk, siapkan hati memuji Yesus 🎵" },
+                { judul: "Duduk Rapi Ya!", sub: "Sebentar lagi ibadah dimulai 😊" },
+                { judul: "Siapkan Alkitabmu", sub: "Kita akan belajar Firman Tuhan 📖" }
+            ];
+
+            let indeksPesan = 0;
+            const elemenJudul = document.getElementById('mainTitle');
+            const elemenSub = document.getElementById('subTitle');
+
+            // Mencegah error jika elemen tidak ditemukan
+            if (!elemenJudul || !elemenSub) return;
+
+            function putarPesan() {
+                elemenJudul.classList.add('text-hidden');
+                elemenSub.classList.add('text-hidden');
+
+                setTimeout(() => {
+                    indeksPesan = (indeksPesan + 1) % pesanSekolahMinggu.length;
+                    
+                    const warnaSub = ["text-teal-700", "text-blue-600", "text-purple-600", "text-pink-600"];
+                    elemenSub.className = `text-2xl md:text-4xl font-bold mt-2 text-transition drop-shadow-sm ${warnaSub[indeksPesan]}`;
+
+                    elemenJudul.innerText = pesanSekolahMinggu[indeksPesan].judul;
+                    elemenSub.innerText = pesanSekolahMinggu[indeksPesan].sub;
+
+                    elemenJudul.classList.remove('text-hidden');
+                    elemenSub.classList.remove('text-hidden');
+                }, 500); 
+            }
+
+            // Ganti pesan setiap 6 detik
+            setInterval(putarPesan, 6000);
+        });
+    </script>
+</body>
+</html>
