@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cute Chibi Snowman Sunset Loop</title>
+    <style>
+        /* ========================================================
+           1. RESET & FULLSCREEN SETUP
+        ======================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            /* Palet Senja Pastel: Peach ke Lavender */
+            background: linear-gradient(180deg, #FFDFD3 0%, #FEC8D8 40%, #D291BC 80%, #957DAD 100%);
+            font-family: sans-serif;
+        }
+
+        /* ========================================================
+           2. ELEMEN LATAR BELAKANG (MATAHARI SENJA & AWAN)
+        ======================================================== */
+        /* Matahari Senja (Soft Glow) */
+        .sunset-sun {
+            position: absolute;
+            bottom: 25vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #FFF0B3 0%, #FFB7B2 70%, transparent 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 100px 50px rgba(255, 183, 178, 0.4);
+            animation: pulse-sun 6s infinite alternate ease-in-out;
+            z-index: 1;
+        }
+
+        @keyframes pulse-sun {
+            0% { opacity: 0.8; transform: translateX(-50%) scale(1); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+        }
+
+        /* Awan Senja */
+        .clouds-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60vh;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 223, 211, 0.4); /* Peach transparan */
+            border-radius: 100px;
+            filter: blur(4px);
+            animation: float-cloud linear infinite;
+        }
+
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 223, 211, 0.4);
+            border-radius: 50%;
+        }
+
+        .cloud1 { width: 180px; height: 60px; top: 15%; left: -250px; animation-duration: 45s; }
+        .cloud1::before { width: 80px; height: 80px; top: -40px; left: 25px; }
+        .cloud1::after { width: 100px; height: 100px; top: -50px; left: 70px; }
+
+        .cloud2 { width: 120px; height: 40px; top: 35%; left: -150px; animation-duration: 55s; animation-delay: -20s; }
+        .cloud2::before { width: 60px; height: 60px; top: -30px; left: 15px; }
+        .cloud2::after { width: 70px; height: 70px; top: -40px; left: 45px; }
+
+        @keyframes float-cloud {
+            0% { transform: translateX(-15vw); }
+            100% { transform: translateX(115vw); }
+        }
+
+        /* ========================================================
+           3. TANAH SALJU BERSINAR (GROUND)
+        ======================================================== */
+        .snow-ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100vw;
+            height: 30vh;
+            /* Putih salju dengan bayangan ungu pastel dari langit */
+            background: #FDFBFE;
+            clip-path: ellipse(150% 100% at 50% 100%);
+            z-index: 3;
+            box-shadow: inset 0 25px 50px rgba(210, 145, 188, 0.3);
+        }
+
+        .snow-ground-back {
+            position: absolute;
+            bottom: 8vh;
+            left: -10vw;
+            width: 120vw;
+            height: 35vh;
+            background: #F4E7F5; /* Pink pucat */
+            clip-path: ellipse(100% 100% at 70% 100%);
+            z-index: 2;
+        }
+
+        /* ========================================================
+           4. MANUSIA SALJU CHIBI & POHON BULAT
+        ======================================================== */
+        .scene-container {
+            position: absolute;
+            bottom: 6vh;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 4;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            width: 100vw;
+            pointer-events: none;
+        }
+
+        /* Pohon Bulat (Gaya Lucu/Cute) */
+        .cute-tree {
+            width: 18vw;
+            max-width: 140px;
+            min-width: 90px;
+            margin: 0 1vw;
+            animation: sway-soft 6s ease-in-out infinite alternate;
+            transform-origin: bottom center;
+        }
+
+        .tree-left { filter: drop-shadow(0 15px 10px rgba(149, 125, 173, 0.4)); margin-right: 3vw; }
+        .tree-right { filter: drop-shadow(0 15px 10px rgba(149, 125, 173, 0.4)); animation-delay: -2s; margin-left: 3vw; }
+
+        @keyframes sway-soft {
+            0% { transform: rotate(-1.5deg); }
+            100% { transform: rotate(1.5deg); }
+        }
+
+        /* Animasi Mengayun (Breathing) untuk Snowman */
+        .snowman-wrapper {
+            width: 35vw;
+            max-width: 280px;
+            min-width: 180px;
+            filter: drop-shadow(0px 20px 15px rgba(149, 125, 173, 0.5));
+            animation: breathe-chibi 3s infinite alternate ease-in-out;
+            transform-origin: bottom center;
+            z-index: 5;
+        }
+
+        @keyframes breathe-chibi {
+            0% { transform: scale(1) scaleY(1) translateY(0); }
+            100% { transform: scale(1.02) scaleY(0.97) translateY(-3px); }
+        }
+
+        /* Animasi Khusus untuk Burung Kecil di Tangan */
+        .bird-group {
+            animation: bird-hop 4s infinite ease-in-out;
+            transform-origin: 215px 105px; /* Poros tengah burung */
+        }
+
+        @keyframes bird-hop {
+            0%, 70% { transform: rotate(0deg) translateY(0); }
+            75% { transform: rotate(-10deg) translateY(-5px); } /* Melompat kecil */
+            80% { transform: rotate(10deg) translateY(0); }
+            85% { transform: rotate(-5deg) translateY(-2px); }
+            90%, 100% { transform: rotate(0deg) translateY(0); }
+        }
+
+        /* Animasi Syal Tertiup Angin */
+        .scarf-tail {
+            animation: wind-blow 2.5s infinite alternate ease-in-out;
+            transform-origin: 150px 120px;
+        }
+
+        @keyframes wind-blow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(12deg); }
+        }
+
+        /* ========================================================
+           5. CANVAS PARTIKEL SALJU
+        ======================================================== */
+        #snowCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Responsif untuk Layar HP Portrait */
+        @media (max-aspect-ratio: 3/4) {
+            .cute-tree { width: 30vw; }
+            .snowman-wrapper { width: 55vw; }
+            .sunset-sun { width: 150px; height: 150px; bottom: 35vh; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Latar Matahari Senja -->
+    <div class="sunset-sun"></div>
+
+    <!-- Awan Pastel -->
+    <div class="clouds-container">
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+    </div>
+
+    <!-- Bukit Salju -->
+    <div class="snow-ground-back"></div>
+    <div class="snow-ground"></div>
+
+    <!-- Container Utama: Snowman Lucu & Pohon -->
+    <div class="scene-container">
+        
+        <!-- Pohon Bulat Kiri (Lucu, Warna Soft Mint) -->
+        <svg class="cute-tree tree-left" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
+            <rect x="45" y="110" width="10" height="40" fill="#B89B85" rx="3"/>
+            <!-- Daun berupa lingkaran-lingkaran bertumpuk -->
+            <circle cx="50" cy="90" r="30" fill="#A8E6CF" />
+            <circle cx="35" cy="65" r="25" fill="#B5EAD7" />
+            <circle cx="65" cy="65" r="25" fill="#B5EAD7" />
+            <circle cx="50" cy="40" r="25" fill="#C7F4E5" />
+            <!-- Tumpukan Salju Putih di atas daun -->
+            <path d="M 25 40 Q 50 10 75 40 Q 50 50 25 40 Z" fill="rgba(255,255,255,0.8)"/>
+        </svg>
+
+        <!-- Manusia Salju CHIBI (Kepala besar, badan pendek, senyum) -->
+        <div class="snowman-wrapper">
+            <svg viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
+                <!-- Gradasi Salju Senja -->
+                <defs>
+                    <radialGradient id="snowGradSunset" cx="30%" cy="30%" r="70%">
+                        <stop offset="0%" stop-color="#FFFFFF" />
+                        <stop offset="60%" stop-color="#FFF0F5" />
+                        <stop offset="100%" stop-color="#E1D4E8" />
+                    </radialGradient>
+                </defs>
+
+                <!-- Badan Pendek (Bulat) -->
+                <circle cx="125" cy="180" r="60" fill="url(#snowGradSunset)" />
+                <!-- Kepala Besar (Lebih mendominasi agar lucu) -->
+                <circle cx="125" cy="95" r="50" fill="url(#snowGradSunset)" />
+
+                <!-- Earmuff (Penutup Telinga Berbulu Pastel Ungu) -->
+                <!-- Bando Earmuff -->
+                <path d="M 75 95 C 75 35, 175 35, 175 95" fill="none" stroke="#D291BC" stroke-width="5" />
+                <!-- Bulu Telinga -->
+                <circle cx="70" cy="95" r="15" fill="#E0BBE4" />
+                <circle cx="180" cy="95" r="15" fill="#E0BBE4" />
+
+                <!-- Wajah Sangat Lucu -->
+                <!-- Mata Melengkung Senyum bahagia (^ ^) -->
+                <path d="M 105 85 Q 112 78 119 85" fill="none" stroke="#5A5A5A" stroke-width="3" stroke-linecap="round" />
+                <path d="M 131 85 Q 138 78 145 85" fill="none" stroke="#5A5A5A" stroke-width="3" stroke-linecap="round" />
+                
+                <!-- Pipi Merona Merah Muda Terang (Blush) -->
+                <ellipse cx="98" cy="95" rx="9" ry="4" fill="#FFB7B2" opacity="0.8" />
+                <ellipse cx="152" cy="95" rx="9" ry="4" fill="#FFB7B2" opacity="0.8" />
+
+                <!-- Hidung Wortel Kecil Lucu -->
+                <polygon points="120,93 135,98 120,103" fill="#FFDAC1" />
+
+                <!-- Syal Hijau Mint Pastel -->
+                <path d="M 85 135 Q 125 150 165 135 Q 170 125 160 120 Q 125 130 90 120 Z" fill="#B5EAD7" />
+                <!-- Ekor Syal Bergerak ditiup angin -->
+                <g class="scarf-tail">
+                    <path d="M 145 130 L 155 180 L 135 185 Z" fill="#A8E6CF" />
+                    <!-- Rumbai Syal -->
+                    <line x1="135" y1="185" x2="135" y2="192" stroke="#B5EAD7" stroke-width="2" />
+                    <line x1="145" y1="183" x2="145" y2="190" stroke="#B5EAD7" stroke-width="2" />
+                    <line x1="155" y1="180" x2="155" y2="187" stroke="#B5EAD7" stroke-width="2" />
+                </g>
+
+                <!-- Tangan Kiri (Ranting) -->
+                <path d="M 67 150 Q 40 130 20 140" stroke="#B89B85" stroke-width="4" fill="none" stroke-linecap="round" />
+                <path d="M 40 138 Q 30 125 25 125" stroke="#B89B85" stroke-width="3" fill="none" stroke-linecap="round" />
+
+                <!-- Tangan Kanan Terangkat (Tempat Burung Hinggap) -->
+                <path d="M 183 150 Q 210 120 230 125" stroke="#B89B85" stroke-width="4" fill="none" stroke-linecap="round" />
+                <path d="M 205 132 Q 215 120 225 115" stroke="#B89B85" stroke-width="3" fill="none" stroke-linecap="round" />
+
+                <!-- Burung Lucu Pastel Pink Bertengger di Tangan -->
+                <g class="bird-group">
+                    <!-- Tubuh Burung (Bulat) -->
+                    <ellipse cx="215" cy="115" rx="14" ry="11" fill="#FF9AA2" />
+                    <!-- Ekor Burung -->
+                    <polygon points="204,115 188,110 193,125" fill="#FF9AA2" />
+                    <!-- Perut Putih/Peach -->
+                    <ellipse cx="220" cy="119" rx="8" ry="5" fill="#FFF0F5" />
+                    <!-- Paruh -->
+                    <polygon points="228,113 238,115 228,117" fill="#FFDAC1" />
+                    <!-- Mata Burung (Senang) -->
+                    <path d="M 221 110 Q 223 108 225 110" fill="none" stroke="#5A5A5A" stroke-width="1.5" stroke-linecap="round" />
+                </g>
+                
+                <!-- Kancing Baju (Warna Mauve / Ungu Gelap Pastel) -->
+                <circle cx="125" cy="155" r="4.5" fill="#957DAD" />
+                <circle cx="125" cy="175" r="4.5" fill="#957DAD" />
+                <circle cx="125" cy="195" r="4.5" fill="#957DAD" />
+            </svg>
+        </div>
+
+        <!-- Pohon Bulat Kanan (Warna Soft Pink) -->
+        <svg class="cute-tree tree-right" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
+            <rect x="45" y="110" width="10" height="40" fill="#B89B85" rx="3"/>
+            <!-- Daun lingkaran bertumpuk pink pastel -->
+            <circle cx="50" cy="90" r="30" fill="#FFB7B2" />
+            <circle cx="35" cy="65" r="25" fill="#FFDAC1" />
+            <circle cx="65" cy="65" r="25" fill="#FFDAC1" />
+            <circle cx="50" cy="40" r="25" fill="#FFDFD3" />
+            <path d="M 25 40 Q 50 10 75 40 Q 50 50 25 40 Z" fill="rgba(255,255,255,0.8)"/>
+        </svg>
+
+    </div>
+
+    <!-- Kanvas Salju -->
+    <canvas id="snowCanvas"></canvas>
+
+    <script>
+        /* ========================================================
+           6. JAVASCRIPT: SALJU CANVAS EFEKTIF
+        ======================================================== */
+        const canvas = document.getElementById('snowCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let snowflakes = [];
+        let particleCount = 80; // Disesuaikan agar layar tidak terlalu ramai, menjaga kesan damai
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            
+            // Kalkulasi jumlah salju ideal
+            particleCount = Math.floor((width * height) / 13000);
+            if (particleCount > 200) particleCount = 200; 
+            
+            snowflakes = [];
+            for (let i = 0; i < particleCount; i++) {
+                snowflakes.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 3 + 1,        // Variasi ukuran salju
+                    speed: Math.random() * 1.2 + 0.5,     // Jatuh lebih lambat = damai
+                    wind: Math.random() * 0.4 - 0.2,      
+                    opacity: Math.random() * 0.6 + 0.3    
+                });
+            }
+        }
+
+        function animateSnow() {
+            ctx.clearRect(0, 0, width, height);
+            
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            
+            for (let i = 0; i < particleCount; i++) {
+                let flake = snowflakes[i];
+                
+                ctx.moveTo(flake.x, flake.y);
+                ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2, true);
+                
+                flake.y += flake.speed;
+                flake.x += flake.wind;
+                
+                // Reposisi partikel jika keluar layar
+                if (flake.y > height) {
+                    flake.y = -5;
+                    flake.x = Math.random() * width;
+                }
+                if (flake.x > width) flake.x = 0;
+                if (flake.x < 0) flake.x = width;
+            }
+            
+            ctx.globalAlpha = 0.8;
+            ctx.fill();
+            
+            requestAnimationFrame(animateSnow);
+        }
+
+        initCanvas();
+        animateSnow();
+
+        window.addEventListener('resize', () => {
+            initCanvas();
+        });
+    </script>
+</body>
+</html>
