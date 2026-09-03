@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penutup Ibadah Siang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Pengaturan Dasar & Latar Belakang Siang Hari */
+        body {
+            margin: 0;
+            overflow: hidden;
+            /* Gradien langit biru cerah ke kuning hangat (sinar matahari) */
+            background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 40%, #fef08a 100%);
+            font-family: 'Montserrat', sans-serif;
+            color: #1e3a8a; /* Biru tua untuk kontras yang baik di latar terang */
+        }
+
+        .font-serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Matahari (CSS murni) */
+        .sun {
+            position: absolute;
+            top: -10vh;
+            right: -5vw;
+            width: 40vw;
+            height: 40vw;
+            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(253,224,71,0.8) 30%, rgba(253,224,71,0) 70%);
+            border-radius: 50%;
+            z-index: 1;
+            animation: pulseSun 8s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulseSun {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+
+        /* Animasi Awan Berjalan (Sangat ringan untuk CPU) */
+        .cloud-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .cloud {
+            position: absolute;
+            opacity: 0.6;
+            animation: moveCloud linear infinite;
+        }
+
+        .cloud svg {
+            fill: #ffffff;
+            filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.05));
+        }
+
+        /* Kecepatan dan posisi awan berbeda-beda */
+        .cloud-1 { top: 10%; left: -20%; animation-duration: 40s; width: 15vw; }
+        .cloud-2 { top: 30%; left: -30%; animation-duration: 65s; animation-delay: -10s; width: 25vw; opacity: 0.4; }
+        .cloud-3 { top: 60%; left: -25%; animation-duration: 50s; animation-delay: -25s; width: 20vw; }
+        .cloud-4 { top: 75%; left: -40%; animation-duration: 80s; animation-delay: -5s; width: 35vw; opacity: 0.3; }
+
+        @keyframes moveCloud {
+            from { transform: translateX(-10vw); }
+            to { transform: translateX(120vw); }
+        }
+
+        /* Animasi Teks */
+        .reveal-text {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: revealUp 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .delay-1 { animation-delay: 1s; }
+        .delay-2 { animation-delay: 2s; }
+        .delay-3 { animation-delay: 3s; }
+        .delay-4 { animation-delay: 4.5s; }
+
+        @keyframes revealUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Kotak Kaca (Glassmorphism) untuk teks agar mudah dibaca */
+        .glass-box {
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen relative flex flex-col items-center justify-center">
+
+    <!-- Efek Matahari CSS -->
+    <div class="sun"></div>
+
+    <!-- Lapisan Awan SVG (Bergerak ke kanan) -->
+    <div class="cloud-container">
+        <!-- Awan 1 -->
+        <div class="cloud cloud-1">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.5 19c-2.02 0-3.79-1.29-4.52-3.12-.39.08-.79.12-1.2.12-2.85 0-5.22-2.12-5.68-4.91C4.38 10.87 3 9.09 3 7c0-2.76 2.24-5 5-5 1.57 0 2.97.73 3.86 1.86.82-.55 1.8-.86 2.86-.86 2.91 0 5.3 2.22 5.69 5.06C21.78 8.44 23 9.99 23 12c0 2.21-1.79 4-4 4h-1.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5H19c1.65 0 3-1.35 3-3 0-1.46-1.06-2.68-2.48-2.93l-.84-.15-.14-.84C18.23 5.48 16.27 4 14.72 4c-1.37 0-2.62.77-3.26 2.01l-.42.82-.82-.42C9.53 5.76 8.79 5.5 8 5.5c-2.21 0-4 1.79-4 4 0 1.6 1 3.01 2.5 3.65l.77.33-.21.81c-.24.96.2 1.95 1.05 2.45.31.18.66.27 1.03.27 1.35 0 2.51-.93 2.82-2.25l.17-.74.69.29c.87.37 1.82.41 2.7.13.91-.29 1.63-.98 1.94-1.89l.24-.71.71.24c.73.25 1.25.92 1.25 1.7 0 .96-.79 1.75-1.75 1.75H17.5c-.28 0-.5.22-.5.5s.22.5.5.5z"/></svg>
+        </div>
+        <!-- Awan 2 -->
+        <div class="cloud cloud-2">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.5 19c-2.02 0-3.79-1.29-4.52-3.12-.39.08-.79.12-1.2.12-2.85 0-5.22-2.12-5.68-4.91C4.38 10.87 3 9.09 3 7c0-2.76 2.24-5 5-5 1.57 0 2.97.73 3.86 1.86.82-.55 1.8-.86 2.86-.86 2.91 0 5.3 2.22 5.69 5.06C21.78 8.44 23 9.99 23 12c0 2.21-1.79 4-4 4h-1.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5H19c1.65 0 3-1.35 3-3 0-1.46-1.06-2.68-2.48-2.93l-.84-.15-.14-.84C18.23 5.48 16.27 4 14.72 4c-1.37 0-2.62.77-3.26 2.01l-.42.82-.82-.42C9.53 5.76 8.79 5.5 8 5.5c-2.21 0-4 1.79-4 4 0 1.6 1 3.01 2.5 3.65l.77.33-.21.81c-.24.96.2 1.95 1.05 2.45.31.18.66.27 1.03.27 1.35 0 2.51-.93 2.82-2.25l.17-.74.69.29c.87.37 1.82.41 2.7.13.91-.29 1.63-.98 1.94-1.89l.24-.71.71.24c.73.25 1.25.92 1.25 1.7 0 .96-.79 1.75-1.75 1.75H17.5c-.28 0-.5.22-.5.5s.22.5.5.5z"/></svg>
+        </div>
+        <!-- Awan 3 -->
+        <div class="cloud cloud-3">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.5 19c-2.02 0-3.79-1.29-4.52-3.12-.39.08-.79.12-1.2.12-2.85 0-5.22-2.12-5.68-4.91C4.38 10.87 3 9.09 3 7c0-2.76 2.24-5 5-5 1.57 0 2.97.73 3.86 1.86.82-.55 1.8-.86 2.86-.86 2.91 0 5.3 2.22 5.69 5.06C21.78 8.44 23 9.99 23 12c0 2.21-1.79 4-4 4h-1.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5H19c1.65 0 3-1.35 3-3 0-1.46-1.06-2.68-2.48-2.93l-.84-.15-.14-.84C18.23 5.48 16.27 4 14.72 4c-1.37 0-2.62.77-3.26 2.01l-.42.82-.82-.42C9.53 5.76 8.79 5.5 8 5.5c-2.21 0-4 1.79-4 4 0 1.6 1 3.01 2.5 3.65l.77.33-.21.81c-.24.96.2 1.95 1.05 2.45.31.18.66.27 1.03.27 1.35 0 2.51-.93 2.82-2.25l.17-.74.69.29c.87.37 1.82.41 2.7.13.91-.29 1.63-.98 1.94-1.89l.24-.71.71.24c.73.25 1.25.92 1.25 1.7 0 .96-.79 1.75-1.75 1.75H17.5c-.28 0-.5.22-.5.5s.22.5.5.5z"/></svg>
+        </div>
+        <!-- Awan 4 -->
+        <div class="cloud cloud-4">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.5 19c-2.02 0-3.79-1.29-4.52-3.12-.39.08-.79.12-1.2.12-2.85 0-5.22-2.12-5.68-4.91C4.38 10.87 3 9.09 3 7c0-2.76 2.24-5 5-5 1.57 0 2.97.73 3.86 1.86.82-.55 1.8-.86 2.86-.86 2.91 0 5.3 2.22 5.69 5.06C21.78 8.44 23 9.99 23 12c0 2.21-1.79 4-4 4h-1.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5H19c1.65 0 3-1.35 3-3 0-1.46-1.06-2.68-2.48-2.93l-.84-.15-.14-.84C18.23 5.48 16.27 4 14.72 4c-1.37 0-2.62.77-3.26 2.01l-.42.82-.82-.42C9.53 5.76 8.79 5.5 8 5.5c-2.21 0-4 1.79-4 4 0 1.6 1 3.01 2.5 3.65l.77.33-.21.81c-.24.96.2 1.95 1.05 2.45.31.18.66.27 1.03.27 1.35 0 2.51-.93 2.82-2.25l.17-.74.69.29c.87.37 1.82.41 2.7.13.91-.29 1.63-.98 1.94-1.89l.24-.71.71.24c.73.25 1.25.92 1.25 1.7 0 .96-.79 1.75-1.75 1.75H17.5c-.28 0-.5.22-.5.5s.22.5.5.5z"/></svg>
+        </div>
+    </div>
+
+    <!-- Kanvas Partikel Cahaya (Debu berterbangan) dibatasi di 24 FPS -->
+    <canvas id="lightDustCanvas" class="absolute inset-0 z-10 pointer-events-none"></canvas>
+
+    <!-- Konten Utama Teks -->
+    <div class="relative z-20 flex flex-col items-center justify-center w-full h-full text-center px-6">
+        
+        <div class="glass-box py-10 px-8 md:px-16 rounded-3xl max-w-4xl w-full">
+            
+            <p class="reveal-text text-sm md:text-lg font-semibold tracking-widest text-blue-800/70 uppercase mb-4">
+                Ibadah Telah Selesai
+            </p>
+
+            <h1 class="reveal-text delay-1 font-serif-title text-5xl md:text-6xl lg:text-7xl font-bold mb-4 text-blue-950">
+                Selamat Hari Minggu
+            </h1>
+            
+            <h2 class="reveal-text delay-2 font-serif-title text-2xl md:text-4xl italic text-yellow-600 mb-8">
+                Tuhan Yesus Memberkati
+            </h2>
+
+            <div class="reveal-text delay-3 w-16 h-1 bg-yellow-400 mx-auto mb-8 rounded-full"></div>
+
+            <p class="reveal-text delay-3 text-lg md:text-2xl text-blue-900 font-medium leading-relaxed max-w-2xl mx-auto">
+                Selamat melanjutkan aktivitas di hari ini dengan sukacita dan damai sejahtera.
+            </p>
+
+            <div class="reveal-text delay-4 mt-12 inline-block bg-blue-900/10 py-3 px-8 rounded-full border border-blue-900/20">
+                <p class="text-base md:text-xl text-blue-950 font-bold tracking-wide">
+                    Sampai Jumpa di Ibadah Minggu Depan
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Script JavaScript untuk debu cahaya dengan Limit 24 FPS -->
+    <script>
+        const canvas = document.getElementById('lightDustCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        const particles = [];
+        const numParticles = 40; // Jumlah partikel sedikit saja karena siang hari
+
+        // --- SISTEM LIMIT FPS ---
+        const targetFPS = 24; 
+        const frameDelay = 1000 / targetFPS;
+        let lastTime = 0;
+        // ------------------------
+
+        function initSize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', initSize);
+        initSize();
+
+        class DustParticle {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * height; // Posisi awal acak
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = height + 20; // Mulai dari bawah
+                this.size = Math.random() * 2.5 + 0.5;
+                // Gerakan naik yang sangat lambat dan melayang
+                this.speedY = -(Math.random() * 0.5 + 0.2); 
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                // Transparansi
+                this.opacity = 0;
+                this.targetOpacity = Math.random() * 0.4 + 0.1; // Max opacity rendah agar tidak mencolok
+                this.fadingIn = true;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Animasi fade in
+                if (this.fadingIn) {
+                    this.opacity += 0.01;
+                    if (this.opacity >= this.targetOpacity) {
+                        this.fadingIn = false;
+                    }
+                }
+
+                // Reset jika keluar layar dari atas
+                if (this.y < -10) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        // Buat partikel awal
+        for (let i = 0; i < numParticles; i++) {
+            particles.push(new DustParticle());
+        }
+
+        // Loop Animasi Terbatas FPS
+        function animate(timestamp) {
+            requestAnimationFrame(animate);
+
+            const elapsed = timestamp - lastTime;
+
+            // Hanya proses frame jika waktu sudah memenuhi standar 24 FPS
+            if (elapsed > frameDelay) {
+                lastTime = timestamp - (elapsed % frameDelay);
+
+                // --- Mulai Rendering ---
+                ctx.clearRect(0, 0, width, height);
+                
+                for (let i = 0; i < numParticles; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                }
+                // --- Selesai Rendering ---
+            }
+        }
+
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>
