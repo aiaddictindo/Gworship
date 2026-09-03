@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penutup Ibadah Gereja</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom Styles & Animations */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 50%, #020617 100%);
+            color: #ffffff;
+            font-family: 'Lora', serif;
+        }
+
+        .font-heading {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Slow fade in for the main content */
+        .fade-in-up {
+            animation: fadeInUp 3s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .delay-1 { animation-delay: 1s; }
+        .delay-2 { animation-delay: 2s; }
+        .delay-3 { animation-delay: 3s; }
+        .delay-4 { animation-delay: 4s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Continuous gentle pulse for the final message */
+        .pulse-soft {
+            animation: pulseSoft 4s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulseSoft {
+            0% { opacity: 0.7; transform: scale(0.98); }
+            100% { opacity: 1; transform: scale(1.02); text-shadow: 0 0 15px rgba(234, 179, 8, 0.4); }
+        }
+
+        /* Gold text gradient */
+        .text-gold {
+            background: linear-gradient(to right, #fef08a, #eab308, #ca8a04);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen relative flex flex-col items-center justify-center">
+
+    <!-- Canvas for Background Particles -->
+    <canvas id="particleCanvas" class="absolute inset-0 z-0"></canvas>
+
+    <!-- Content Container -->
+    <div class="relative z-10 flex flex-col items-center justify-center w-full h-full text-center px-4">
+        
+        <!-- Cross Icon -->
+        <div class="fade-in-up mb-8">
+            <svg class="w-16 h-16 md:w-24 md:h-24 text-yellow-500 opacity-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v20M5 8h14" />
+            </svg>
+        </div>
+
+        <!-- Main Heading -->
+        <h1 class="font-heading fade-in-up delay-1 text-4xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-wider text-gold">
+            Tuhan Yesus Memberkati
+        </h1>
+
+        <!-- Subtext -->
+        <p class="fade-in-up delay-2 text-lg md:text-2xl text-gray-300 max-w-2xl mx-auto leading-relaxed mb-2">
+            Ibadah hari ini telah selesai.
+        </p>
+        <p class="fade-in-up delay-2 text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed italic mb-12">
+            Selamat memasuki minggu yang baru dan selamat melayani di ladang Tuhan.
+        </p>
+
+        <!-- Divider Line -->
+        <div class="fade-in-up delay-3 w-24 h-[1px] bg-yellow-600/50 mb-12"></div>
+
+        <!-- Call to Return -->
+        <div class="fade-in-up delay-4 mt-8">
+            <h2 class="font-heading text-xl md:text-3xl text-yellow-400 font-semibold tracking-wide pulse-soft">
+                Sampai Jumpa di Ibadah Minggu Depan
+            </h2>
+        </div>
+
+    </div>
+
+    <!-- JavaScript for Particle Animation -->
+    <script>
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        let width, height;
+
+        // Configuration
+        const particleCount = 70; // Adjust for more/less particles
+        const particleBaseRadius = 1;
+        const particleMaxRadius = 4;
+        const speedMultiplier = 0.2; // Keep it slow and peaceful
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * height; // Initial random spawn across screen
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = height + Math.random() * 100; // Spawn slightly below screen
+                this.radius = particleBaseRadius + Math.random() * particleMaxRadius;
+                
+                // Slow upward drift with slight horizontal sway
+                this.vx = (Math.random() - 0.5) * speedMultiplier;
+                this.vy = -(Math.random() * 1.5 + 0.5) * speedMultiplier;
+                
+                // Golden/Warm light colors
+                const colors = [
+                    'rgba(255, 215, 0, ',   // Gold
+                    'rgba(255, 255, 255, ', // White
+                    'rgba(253, 224, 71, '   // Yellow-300
+                ];
+                this.baseColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                this.life = 0;
+                this.maxLife = 300 + Math.random() * 500;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life++;
+
+                // Reset if it goes off screen or life ends
+                if (this.y < -50 || this.x < -50 || this.x > width + 50 || this.life >= this.maxLife) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                // Fade in and fade out based on life
+                let opacity = 1;
+                const fadeFrames = 100;
+                if (this.life < fadeFrames) {
+                    opacity = this.life / fadeFrames;
+                } else if (this.life > this.maxLife - fadeFrames) {
+                    opacity = (this.maxLife - this.life) / fadeFrames;
+                }
+                
+                // Max opacity should be subtle (0.1 to 0.6)
+                opacity = opacity * (0.1 + Math.random() * 0.5);
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                
+                // Glow effect
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.baseColor.replace(', ', ', 1)').replace('rgba', 'rgb');
+                
+                ctx.fillStyle = this.baseColor + opacity + ')';
+                ctx.fill();
+                
+                // Reset shadow for performance
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        // Initialize particles
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        // Animation Loop
+        function animate() {
+            // Clear canvas with a very slight trailing effect (opacity 0.5)
+            ctx.clearRect(0, 0, width, height);
+            
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
